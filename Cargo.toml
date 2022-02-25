@@ -10,14 +10,19 @@ keywords = ["bevy"]
 exclude = ["assets/**/*", ".github/**/*"]
 resolver = "2"
 
+# Enable only a small amount of optimization in debug mode
 [profile.dev]
+opt-level = 1
+
+# Enable high optimizations for dependencies (incl. Bevy), but not for our code:
+[profile.dev.package."*"]
 opt-level = 3
 
 [workspace]
 members = ["./", "tools/ci"]
 
 [dependencies]
-bevy = { version = "0.6", default-features = false, features = ["dynamic"]}
+bevy = { version = "0.6", features = ["dynamic"]}
 
 [patch.crates-io]
 # We can override the bevy version with remote or local versions

@@ -6,10 +6,10 @@ fn main() {
     App::new()
         // Configure the game window
         .insert_resource(WindowDescriptor {
-            width: 1920.0,
-            height: 1080.0,
-            title: "Template".to_string(),
-            mode: WindowMode::BorderlessFullscreen,
+            width: 1600.0,
+            height: 900.0,
+            mode: WindowMode::Windowed,
+            title: "Awesome Bevy Game".to_string(),
             ..Default::default()
         })
         // Standard Bevy functionality
