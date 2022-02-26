@@ -14,30 +14,24 @@ pub enum ButtonId {
 
 pub fn handle_buttons(
     mut game_state: ResMut<State<GameState>>,
-    mut mouse_input: ResMut<Input<MouseButton>>,
     mut interaction_query: Query<
         (&Interaction, &mut UiColor, &ButtonId),
         (Changed<Interaction>, With<Button>, Without<Disabled>),
     >,
     mut app_exit_events: EventWriter<AppExit>,
-) {
+) -> anyhow::Result<()> {
     for (interaction, mut color, button_id) in interaction_query.iter_mut() {
         match *interaction {
             Interaction::Clicked => {
                 *color = PRESSED_COLOR;
-                let result: anyhow::Result<()> = try {
-                    match button_id {
-                        ButtonId::SinglePlayer => {
-                            game_state.overwrite_set(GameState::Playing)?;
-                        }
-                        ButtonId::Quit => {
-                            app_exit_events.send(AppExit);
-                        }
-                        _ => {}
+                match button_id {
+                    ButtonId::SinglePlayer => {
+                        game_state.overwrite_set(GameState::Playing)?;
                     }
-                };
-                if let Err(err) = result {
-                    warn!("Issue with state transition: {:?}", err);
+                    ButtonId::Quit => {
+                        app_exit_events.send(AppExit);
+                    }
+                    _ => {}
                 }
             }
             Interaction::Hovered => {
@@ -48,6 +42,7 @@ pub fn handle_buttons(
             }
         }
     }
+    Ok(())
 }
 
 pub fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
