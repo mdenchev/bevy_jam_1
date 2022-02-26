@@ -19,3 +19,11 @@ pub fn set_texture_filters_to_nearest(
         }
     }
 }
+
+/// Generic error handler system that can be chained into
+/// to allow using ? for error checking and logging
+pub fn log_error(In(result): In<anyhow::Result<()>>) {
+    if let Err(e) = result {
+        error!("{:?}", e);
+    }
+}
