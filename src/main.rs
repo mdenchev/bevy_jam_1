@@ -39,4 +39,3 @@ fn main() {
         .add_state(GameState::MainMenu)
         .run();
 }
-
