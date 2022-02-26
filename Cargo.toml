@@ -20,23 +20,6 @@ members = ["./", "tools/ci"]
 
 [dependencies]
 bevy = { version = "0.6" }
-
-[patch.crates-io]
-# We can override the bevy version with remote or local versions
-# This method causes less pain to downstream users trying to work off your revisions
-#bevy = { git = "https://github.com/bevyengine/bevy" }
-#bevy = { path = "../bevy" }
-
-[dev-dependencies]
-criterion = "0.3"
-# We can use a different feature set of Bevy for our library vs our examples and tests
-# bevy = { version = "0.6" }
-
-
-[lib]
-name = "template_lib"
-path = "src/lib.rs"
-
-[[bin]]
-name = "template_bin"
-path = "src/main.rs"
+bevy_ecs_tilemap = "0.5"
+bevy_egui = "0.11"
+bevy_rapier2d = "0.12"

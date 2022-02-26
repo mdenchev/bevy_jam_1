@@ -1,6 +1,18 @@
+use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::prelude::*;
 use bevy::window::WindowMode;
-use template_lib::*;
+use bevy_egui::EguiPlugin;
+
+mod utils;
+mod main_menu;
+mod singleplayer;
+
+#[derive(Clone, Eq, PartialEq, Debug, Hash)]
+pub enum GameState {
+    MainMenu,
+    Playing,
+    GameOver,
+}
 
 fn main() {
     App::new()
@@ -8,6 +20,7 @@ fn main() {
         .insert_resource(WindowDescriptor {
             width: 1600.0,
             height: 900.0,
+            vsync: true,
             mode: WindowMode::Windowed,
             title: "Awesome Bevy Game".to_string(),
             ..Default::default()
@@ -15,7 +28,15 @@ fn main() {
         .insert_resource(ClearColor(Color::rgb(0.11, 0.039, 0.004)))
         // Standard Bevy functionality
         .add_plugins(DefaultPlugins)
-        // Add plugins here
-        .add_plugin(HelloWorldPlugin)
+        .add_plugin(LogDiagnosticsPlugin::default())
+        .add_plugin(FrameTimeDiagnosticsPlugin::default())
+        .add_plugin(EguiPlugin)
+        .add_plugin(main_menu::MainMenuScene)
+        .add_plugin(singleplayer::SinglePlayerScene)
+        .add_startup_system(general_setup)
         .run();
+}
+
+fn general_setup(mut commands: Commands) {
+    commands.spawn_bundle(OrthographicCameraBundle::new_2d());
 }
