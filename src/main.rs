@@ -3,9 +3,9 @@ use bevy::prelude::*;
 use bevy::window::WindowMode;
 use bevy_egui::EguiPlugin;
 
-mod utils;
 mod main_menu;
 mod singleplayer;
+mod utils;
 
 #[derive(Clone, Eq, PartialEq, Debug, Hash)]
 pub enum GameState {
