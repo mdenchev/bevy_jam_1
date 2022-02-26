@@ -2,12 +2,9 @@
 name = "AwesomeBevyGame"
 description = "A game written in Bevy for Bevy Jam 1"
 version = "0.0.0"
-authors = [""]
+authors = ["SirCarter", "Supermath101", "tas", "Seldom", "mdenchev"]
 license = "MIT OR Apache-2.0"
 edition = "2021"
-categories = ["games", "game-development"]
-keywords = ["bevy"]
-exclude = ["assets/**/*", ".github/**/*"]
 resolver = "2"
 
 # Enable only a small amount of optimization in debug mode

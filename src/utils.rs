@@ -12,13 +12,3 @@
 pub fn returns_true() -> bool {
     true
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn template_unit_test() {
-        assert!(returns_true());
-    }
-}
