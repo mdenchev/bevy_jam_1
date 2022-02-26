@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 use bevy_ecs_tilemap::prelude::*;
 
+use crate::player;
 use crate::GameState;
 
 pub struct SinglePlayerScene;
@@ -10,7 +11,12 @@ impl Plugin for SinglePlayerScene {
         app.add_plugin(TilemapPlugin)
             .add_system(crate::utils::set_texture_filters_to_nearest)
             .add_system_set(
-                SystemSet::on_enter(GameState::Playing).with_system(singleplayer_setup),
+                SystemSet::on_enter(GameState::Playing)
+                    .with_system(singleplayer_setup.label("2d_map_setup"))
+                    .with_system(player::setup_player.after("2d_map_setup")),
+            )
+            .add_system_set(
+                SystemSet::on_exit(GameState::Playing).with_system(player::cleanup_player),
             );
     }
 }

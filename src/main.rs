@@ -7,6 +7,7 @@ use bevy::window::WindowMode;
 use bevy_egui::EguiPlugin;
 
 mod menus;
+mod player;
 mod singleplayer;
 mod utils;
 
@@ -39,4 +40,3 @@ fn main() {
         .add_state(GameState::MainMenu)
         .run();
 }
-
