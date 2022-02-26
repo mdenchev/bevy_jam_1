@@ -23,3 +23,4 @@ bevy = { version = "0.6" }
 bevy_ecs_tilemap = "0.5"
 bevy_egui = "0.11"
 bevy_rapier2d = "0.12"
+anyhow = "1.0"

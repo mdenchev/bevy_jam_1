@@ -1,9 +1,12 @@
+#![feature(try_blocks)]
+#![feature(let_else)]
+
 use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::prelude::*;
 use bevy::window::WindowMode;
 use bevy_egui::EguiPlugin;
 
-mod main_menu;
+mod menus;
 mod singleplayer;
 mod utils;
 
@@ -31,12 +34,9 @@ fn main() {
         .add_plugin(LogDiagnosticsPlugin::default())
         .add_plugin(FrameTimeDiagnosticsPlugin::default())
         .add_plugin(EguiPlugin)
-        .add_plugin(main_menu::MainMenuScene)
+        .add_plugin(menus::MainMenuScene)
         .add_plugin(singleplayer::SinglePlayerScene)
-        .add_startup_system(general_setup)
+        .add_state(GameState::MainMenu)
         .run();
 }
 
-fn general_setup(mut commands: Commands) {
-    commands.spawn_bundle(OrthographicCameraBundle::new_2d());
-}

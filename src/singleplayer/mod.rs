@@ -20,6 +20,7 @@ fn singleplayer_setup(
     asset_server: Res<AssetServer>,
     mut map_query: MapQuery,
 ) {
+    commands.spawn_bundle(OrthographicCameraBundle::new_2d());
     let texture_handle = asset_server.load("images/images.png");
 
     let map_entity = commands.spawn().id();
