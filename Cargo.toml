@@ -32,6 +32,6 @@ bevy = { version = "0.6", features = [
 ] }
 bevy_ecs_tilemap = "0.5"
 bevy_egui = "0.11"
-bevy_rapier2d = "0.12"
 anyhow = "1.0"
 bevy_kira_audio = "0.8"
+heron = { version = "2.0.1", features = ["2d", "enhanced-determinism"] }

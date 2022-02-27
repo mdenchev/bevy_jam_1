@@ -9,17 +9,11 @@ impl Plugin for SinglePlayerScene {
     fn build(&self, app: &mut App) {
         app.add_plugin(TilemapPlugin)
             .add_system(crate::utils::set_texture_filters_to_nearest)
-            .add_system_set(
-                SystemSet::on_enter(GameState::Playing).with_system(singleplayer_setup),
-            );
+            .add_system_set(SystemSet::on_enter(GameState::Playing).with_system(level_setup));
     }
 }
 
-fn singleplayer_setup(
-    mut commands: Commands,
-    asset_server: Res<AssetServer>,
-    mut map_query: MapQuery,
-) {
+fn level_setup(mut commands: Commands, asset_server: Res<AssetServer>, mut map_query: MapQuery) {
     commands.spawn_bundle(OrthographicCameraBundle::new_2d());
     let texture_handle = asset_server.load("images/images.png");
 
