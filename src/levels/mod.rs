@@ -40,29 +40,74 @@ fn level_setup(mut commands: Commands, asset_server: Res<AssetServer>, mut map_q
     floor_tile.tile.texture_index = 4;
 
     {
-        use rand::distributions::Uniform;
-        let mut rng = rand::thread_rng();
-        let size_distrib = Uniform::new(5, 15);
-        let settings = layer_builder.settings.clone();
-        for _ in 0..Uniform::new(10, 37).sample(&mut rng) {
-            let size_x = size_distrib.sample(&mut rng);
-            let size_y = size_distrib.sample(&mut rng);
-            let x = Uniform::new(1, settings.map_size.0 * settings.chunk_size.0 - size_x)
-                .sample(&mut rng);
-            let y = Uniform::new(1, settings.map_size.1 * settings.chunk_size.1 - size_y)
-                .sample(&mut rng);
-            layer_builder.fill(
-                TilePos(x, y),
-                TilePos(x + size_x, y + size_y),
-                floor_tile.clone(),
-            );
+        layer_builder.for_each_tiles_mut(|ent, data| {
+            *data = Some(if rand::random::<f32>() > 0.55 {
+                floor_tile.clone()
+            } else {
+                outside_tile.clone()
+            });
+        });
+
+        let (size_x, size_y) = {
+            let settings = &layer_builder.settings;
+            (
+                settings.map_size.0 * settings.chunk_size.0,
+                settings.map_size.1 * settings.chunk_size.1,
+            )
+        };
+
+        for y in 0..size_y {
+            for x in [0, size_x - 1] {
+                layer_builder
+                    .get_tile_mut(TilePos(x, y))
+                    .unwrap()
+                    .tile
+                    .texture_index = 9;
+            }
         }
-    }
-    layer_builder.for_each_tiles_mut(|tile_entity, tile_data| {
-        if tile_data.is_none() {
-            *tile_data = Some(outside_tile.clone());
+        for x in 0..size_x {
+            for y in [0, size_y - 1] {
+                layer_builder
+                    .get_tile_mut(TilePos(x, y))
+                    .unwrap()
+                    .tile
+                    .texture_index = 9;
+            }
         }
 
+        for _ in 0..30 {
+            let mut new_vals = vec![];
+            for y in 1..(size_y - 1) {
+                for x in 1..(size_x - 1) {
+                    let mut neighbors = 0;
+                    for yp in [y - 1, y, y + 1] {
+                        for xp in [x - 1, x, x + 1] {
+                            if xp == x && yp == y {
+                                continue;
+                            }
+                            if let Ok(tile) = layer_builder
+                                .get_tile(TilePos(xp, yp))
+                                .map(|t| t.tile.texture_index)
+                            {
+                                if tile == 9 {
+                                    neighbors += 1;
+                                }
+                            }
+                        }
+                    }
+                    new_vals.push((x, y, neighbors > 4 || neighbors == 0));
+                }
+            }
+            for (x, y, should_be_wall) in new_vals {
+                layer_builder
+                    .get_tile_mut(TilePos(x, y))
+                    .unwrap()
+                    .tile
+                    .texture_index = if should_be_wall { 9 } else { 4 };
+            }
+        }
+    }
+    layer_builder.for_each_tiles_mut(|tile_entity, _tile_data| {
         if tile_entity.is_none() {
             *tile_entity = Some(commands.spawn().id());
         }
