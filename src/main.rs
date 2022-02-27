@@ -3,8 +3,8 @@ use bevy::window::WindowMode;
 use heron::prelude::*;
 use inputs::GameInputPlugin;
 
-mod player;
 mod inputs;
+mod player;
 
 fn main() {
     App::new()
