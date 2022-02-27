@@ -1,13 +1,10 @@
 [package]
-name = "AwesomeBevyGame"
+name = "awesome_bevy_game"
 description = "A game written in Bevy for Bevy Jam 1"
 version = "0.0.0"
-authors = [""]
+authors = ["SirCarter", "Supermath101", "tas", "Seldom", "mdenchev"]
 license = "MIT OR Apache-2.0"
 edition = "2021"
-categories = ["games", "game-development"]
-keywords = ["bevy"]
-exclude = ["assets/**/*", ".github/**/*"]
 resolver = "2"
 
 # Enable only a small amount of optimization in debug mode
@@ -24,6 +21,10 @@ members = ["./", "tools/ci"]
 [dependencies]
 bevy = { version = "0.6.1", features = ["dynamic"]}
 heron = { version = "2.0.1", features = ["2d", "enhanced-determinism"] }
+bevy_ecs_tilemap = "0.5"
+bevy_egui = "0.11"
+anyhow = "1.0"
+
 
 [dev-dependencies]
 # We can use a different feature set of Bevy for our library vs our examples and tests

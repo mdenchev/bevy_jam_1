@@ -1,24 +1,29 @@
-//! A module
+use bevy::{prelude::*, render::render_resource::TextureUsages};
 
-/// Returns true!
-///
-/// A useless function used for testing that CI works.
-///
-/// # Examples
-/// ```
-/// # use template_lib::utils::returns_true;
-/// assert!(returns_true());
-/// ```
-pub fn returns_true() -> bool {
-    true
+// Taken from https://github.com/StarArawn/bevy_ecs_tilemap/blob/main/examples/helpers/texture.rs
+pub fn set_texture_filters_to_nearest(
+    mut texture_events: EventReader<AssetEvent<Image>>,
+    mut textures: ResMut<Assets<Image>>,
+) {
+    // quick and dirty, run this for all textures anytime a texture is created.
+    for event in texture_events.iter() {
+        match event {
+            AssetEvent::Created { handle } => {
+                if let Some(mut texture) = textures.get_mut(handle) {
+                    texture.texture_descriptor.usage = TextureUsages::TEXTURE_BINDING
+                        | TextureUsages::COPY_SRC
+                        | TextureUsages::COPY_DST;
+                }
+            }
+            _ => (),
+        }
+    }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn template_unit_test() {
-        assert!(returns_true());
+/// Generic error handler system that can be chained into
+/// to allow using ? for error checking and logging
+pub fn log_error(In(result): In<anyhow::Result<()>>) {
+    if let Err(e) = result {
+        error!("{:?}", e);
     }
 }
