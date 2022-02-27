@@ -58,24 +58,16 @@ fn level_setup(mut commands: Commands, asset_server: Res<AssetServer>, mut map_q
 
         for y in 0..size_y {
             for x in [0, size_x - 1] {
-                layer_builder
-                    .get_tile_mut(TilePos(x, y))
-                    .unwrap()
-                    .tile
-                    .texture_index = 9;
+                *layer_builder.get_tile_mut(TilePos(x, y)).unwrap() = outside_tile.clone();
             }
         }
         for x in 0..size_x {
             for y in [0, size_y - 1] {
-                layer_builder
-                    .get_tile_mut(TilePos(x, y))
-                    .unwrap()
-                    .tile
-                    .texture_index = 9;
+                *layer_builder.get_tile_mut(TilePos(x, y)).unwrap() = outside_tile.clone();
             }
         }
 
-        for _ in 0..30 {
+        for _ in 0..40 {
             let mut new_vals = vec![];
             for y in 1..(size_y - 1) {
                 for x in 1..(size_x - 1) {
@@ -106,12 +98,36 @@ fn level_setup(mut commands: Commands, asset_server: Res<AssetServer>, mut map_q
                     .texture_index = if should_be_wall { 9 } else { 4 };
             }
         }
-    }
-    layer_builder.for_each_tiles_mut(|tile_entity, _tile_data| {
-        if tile_entity.is_none() {
-            *tile_entity = Some(commands.spawn().id());
+
+        // Get rid of hanging pockets
+        for y in 1..(size_y - 1) {
+            for x in 1..(size_x - 1) {
+                let tile_pos = TilePos(x, y);
+                if layer_builder.get_tile(tile_pos).unwrap().tile.texture_index != 9 {
+                    continue;
+                }
+                let mut neighbors = 0;
+                for yp in [y - 1, y, y + 1] {
+                    for xp in [x - 1, x, x + 1] {
+                        if (xp == x && yp == y) || !(xp == x || yp == y) {
+                            continue;
+                        }
+                        if let Ok(tile) = layer_builder
+                            .get_tile(TilePos(xp, yp))
+                            .map(|t| t.tile.texture_index)
+                        {
+                            if tile == 4 {
+                                neighbors += 1;
+                            }
+                        }
+                    }
+                }
+                if neighbors == 4 {
+                    *layer_builder.get_tile_mut(tile_pos).unwrap() = floor_tile.clone();
+                }
+            }
         }
-    });
+    }
 
     let layer_entity = map_query.build_layer(&mut commands, layer_builder, texture_handle);
 
@@ -131,21 +147,6 @@ fn zoom_update(
     for mut projection in query.iter_mut() {
         for ev in scroll.iter() {
             projection.scale = (projection.scale - ev.y / 20.0).max(0.01);
-        }
-    }
-}
-
-// fn list_tiles(query: Query<)
-
-fn fill_layer<T: TileBundleTrait + Clone>(
-    lb: &mut LayerBuilder<T>,
-    start: TilePos,
-    end: TilePos,
-    tile: T,
-) {
-    for x in start.0..end.0 {
-        for y in start.1..end.1 {
-            lb.set_tile(TilePos(x, y), tile.clone()).unwrap();
         }
     }
 }
