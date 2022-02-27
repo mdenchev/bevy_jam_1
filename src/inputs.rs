@@ -16,11 +16,11 @@ impl Plugin for GameInputPlugin {
 
 #[derive(Debug, Clone, Default)]
 pub struct PlayerInput {
-    move_direction: Vec2,
-    aim_direction: Vec2,
-    shoot: ButtonState,
-    throw: ButtonState,
-    dodge: ButtonState,
+    pub move_direction: Vec2,
+    pub aim_direction: Vec2,
+    pub shoot: ButtonState,
+    pub throw: ButtonState,
+    pub dodge: ButtonState,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -71,13 +71,14 @@ fn get_player_inputs(
 ) {
     // Create our move vector from keyboard inputs
     let mut move_direction = Vec2::ZERO;
-    move_direction.x += if keys.pressed(KeyCode::A) { 1.0 } else { 0.0 };
-    move_direction.x -= if keys.pressed(KeyCode::D) { 1.0 } else { 0.0 };
+    move_direction.x -= if keys.pressed(KeyCode::A) { 1.0 } else { 0.0 };
+    move_direction.x += if keys.pressed(KeyCode::D) { 1.0 } else { 0.0 };
     move_direction.y += if keys.pressed(KeyCode::W) { 1.0 } else { 0.0 };
     move_direction.y -= if keys.pressed(KeyCode::S) { 1.0 } else { 0.0 };
     if move_direction.length_squared() != 0.0 {
-        player_input.move_direction = move_direction.normalize();
+        move_direction = move_direction.normalize();
     }
+    player_input.move_direction = move_direction;
 
     // Create our aim vector
     let window = windows.get_primary().unwrap();
