@@ -7,11 +7,14 @@ use heron::prelude::*;
 use inputs::GameInputPlugin;
 use bevy_egui::EguiPlugin;
 use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
+use bevy_kira_audio::AudioPlugin;
+use resources::audio_channels::AudioChannels;
 
 mod inputs;
 mod player;
 mod menus;
 mod levels;
+pub mod resources;
 mod utils;
 
 fn main() {
@@ -25,17 +28,17 @@ fn main() {
             title: "Awesome Bevy Game".to_string(),
             ..Default::default()
         })
+        .insert_resource(ClearColor(Color::rgb(0.11, 0.039, 0.004)))
+        .init_resource::<AudioChannels>()
         // Standard Bevy functionality
         .add_plugins(DefaultPlugins)
         .add_plugin(PhysicsPlugin::default())
         .add_plugin(player::PlayerPlugin)
         .add_plugin(inputs::GameInputPlugin)
-        // Add plugins here
-        .insert_resource(ClearColor(Color::rgb(0.11, 0.039, 0.004)))
-        // Standard Bevy functionality
         .add_plugin(LogDiagnosticsPlugin::default())
         .add_plugin(FrameTimeDiagnosticsPlugin::default())
         .add_plugin(EguiPlugin)
+        .add_plugin(AudioPlugin)
         .add_plugin(menus::MainMenuScene)
         .add_plugin(levels::SinglePlayerScene)
         .add_state(GameState::MainMenu)

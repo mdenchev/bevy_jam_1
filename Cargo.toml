@@ -19,13 +19,19 @@ opt-level = 3
 members = ["./", "tools/ci"]
 
 [dependencies]
-bevy = { version = "0.6.1", features = ["dynamic"]}
-heron = { version = "2.0.1", features = ["2d", "enhanced-determinism"] }
+# bevy without bevy_audio feature
+bevy = { version = "0.6", features = [
+    "bevy_gilrs",
+    "bevy_winit",
+    "render",
+    "png",
+    "hdr",
+    "vorbis",
+    "x11",
+    "filesystem_watcher"
+] }
 bevy_ecs_tilemap = "0.5"
 bevy_egui = "0.11"
 anyhow = "1.0"
-
-
-[dev-dependencies]
-# We can use a different feature set of Bevy for our library vs our examples and tests
-bevy = { version = "0.6.1", default-features = false}
+bevy_kira_audio = "0.8"
+heron = { version = "2.0.1", features = ["2d", "enhanced-determinism"] }

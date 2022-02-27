@@ -34,14 +34,6 @@ pub fn text_textstyle(asset_server: &AssetServer) -> TextStyle {
     }
 }
 
-pub fn text_textstyle_disabled(asset_server: &AssetServer) -> TextStyle {
-    TextStyle {
-        font: asset_server.load("fonts/FiraSans-Bold.ttf"),
-        font_size: 30.0,
-        color: Color::GRAY,
-    }
-}
-
 pub fn button_text_alignment() -> TextAlignment {
     TextAlignment {
         horizontal: HorizontalAlign::Center,
