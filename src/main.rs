@@ -1,6 +1,10 @@
 use bevy::prelude::*;
 use bevy::window::WindowMode;
-use template_lib::*;
+use heron::prelude::*;
+use inputs::GameInputPlugin;
+
+mod player;
+mod inputs;
 
 fn main() {
     App::new()
@@ -14,7 +18,9 @@ fn main() {
         })
         // Standard Bevy functionality
         .add_plugins(DefaultPlugins)
+        .add_plugin(PhysicsPlugin::default())
+        .add_plugin(player::PlayerPlugin)
+        .add_plugin(inputs::GameInputPlugin)
         // Add plugins here
-        .add_plugin(HelloWorldPlugin)
         .run();
 }

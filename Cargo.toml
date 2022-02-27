@@ -22,7 +22,8 @@ opt-level = 3
 members = ["./", "tools/ci"]
 
 [dependencies]
-bevy = { version = "0.6", features = ["dynamic"]}
+bevy = { version = "0.6.1", features = ["dynamic"]}
+heron = { version = "2.0.1", features = ["2d", "enhanced-determinism"] }
 
 [patch.crates-io]
 # We can override the bevy version with remote or local versions
@@ -31,15 +32,5 @@ bevy = { version = "0.6", features = ["dynamic"]}
 #bevy = { path = "../bevy" }
 
 [dev-dependencies]
-criterion = "0.3"
 # We can use a different feature set of Bevy for our library vs our examples and tests
-bevy = { version = "0.6", default-features = false}
-
-
-[lib]
-name = "template_lib"
-path = "src/lib.rs"
-
-[[bin]]
-name = "template_bin"
-path = "src/main.rs"
+bevy = { version = "0.6.1", default-features = false}
