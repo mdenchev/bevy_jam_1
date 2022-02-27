@@ -75,7 +75,7 @@ fn get_player_inputs(
     move_direction.x -= if keys.pressed(KeyCode::D) { 1.0 } else { 0.0 };
     move_direction.y += if keys.pressed(KeyCode::W) { 1.0 } else { 0.0 };
     move_direction.y -= if keys.pressed(KeyCode::S) { 1.0 } else { 0.0 };
-    if player_input.move_direction.length_squared() != 0.0 {
+    if move_direction.length_squared() != 0.0 {
         player_input.move_direction = move_direction.normalize();
     }
 
