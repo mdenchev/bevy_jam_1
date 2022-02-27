@@ -9,6 +9,7 @@ use bevy_kira_audio::AudioPlugin;
 use heron::prelude::*;
 use inputs::GameInputPlugin;
 use resources::audio_channels::AudioChannels;
+use bevy_inspector_egui::WorldInspectorPlugin;
 
 mod inputs;
 mod levels;
@@ -39,6 +40,7 @@ fn main() {
         .add_plugin(FrameTimeDiagnosticsPlugin::default())
         .add_plugin(EguiPlugin)
         .add_plugin(AudioPlugin)
+        .add_plugin(WorldInspectorPlugin::new())
         .add_plugin(menus::MainMenuScene)
         .add_plugin(levels::SinglePlayerScene)
         .add_state(GameState::MainMenu)
