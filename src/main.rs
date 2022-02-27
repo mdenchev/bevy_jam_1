@@ -5,10 +5,13 @@ use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::prelude::*;
 use bevy::window::WindowMode;
 use bevy_egui::EguiPlugin;
+<<<<<<< HEAD
 use bevy_kira_audio::AudioPlugin;
 use heron::prelude::*;
 use inputs::GameInputPlugin;
 use resources::audio_channels::AudioChannels;
+=======
+>>>>>>> 8b7a065 (start room gen)
 use bevy_inspector_egui::WorldInspectorPlugin;
 
 mod inputs;
@@ -39,7 +42,10 @@ fn main() {
         .add_plugin(LogDiagnosticsPlugin::default())
         .add_plugin(FrameTimeDiagnosticsPlugin::default())
         .add_plugin(EguiPlugin)
+<<<<<<< HEAD
         .add_plugin(AudioPlugin)
+=======
+>>>>>>> 8b7a065 (start room gen)
         .add_plugin(WorldInspectorPlugin::new())
         .add_plugin(menus::MainMenuScene)
         .add_plugin(levels::SinglePlayerScene)
