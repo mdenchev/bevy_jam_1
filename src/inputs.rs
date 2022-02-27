@@ -107,6 +107,4 @@ fn get_player_inputs(
     } else {
         player_input.shoot.upgrade()
     };
-
-    info!("{:?}", *player_input);
 }
