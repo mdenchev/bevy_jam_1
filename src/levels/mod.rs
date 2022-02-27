@@ -44,12 +44,12 @@ fn level_setup(mut commands: Commands, asset_server: Res<AssetServer>, mut map_q
         let mut rng = rand::thread_rng();
         let size_distrib = Uniform::new(5, 15);
         let settings = layer_builder.settings.clone();
-        for _ in 0..30 {
+        for _ in 0..Uniform::new(10, 37).sample(&mut rng) {
             let size_x = size_distrib.sample(&mut rng);
             let size_y = size_distrib.sample(&mut rng);
-            let x = Uniform::new(1, settings.map_size.0 * settings.chunk_size.0 - 1 - size_x)
+            let x = Uniform::new(1, settings.map_size.0 * settings.chunk_size.0 - size_x)
                 .sample(&mut rng);
-            let y = Uniform::new(1, settings.map_size.1 * settings.chunk_size.1 - 1 - size_y)
+            let y = Uniform::new(1, settings.map_size.1 * settings.chunk_size.1 - size_y)
                 .sample(&mut rng);
             layer_builder.fill(
                 TilePos(x, y),
