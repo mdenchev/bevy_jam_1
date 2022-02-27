@@ -1,5 +1,3 @@
-//! Some UI utility functions and structs.
-
 use bevy::prelude::*;
 
 /// Marks a UI element as disabled.

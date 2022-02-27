@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_ecs_tilemap::prelude::*;
 
-use crate::player;
+pub mod player;
 use crate::GameState;
 
 pub struct SinglePlayerScene;
@@ -16,7 +16,7 @@ impl Plugin for SinglePlayerScene {
                     .with_system(player::setup_player.after("2d_map_setup")),
             )
             .add_system_set(
-                SystemSet::on_exit(GameState::Playing).with_system(player::cleanup_player),
+                SystemSet::on_update(GameState::Playing).with_system(player::player_movement),
             );
     }
 }

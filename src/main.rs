@@ -5,9 +5,9 @@ use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::prelude::*;
 use bevy::window::WindowMode;
 use bevy_egui::EguiPlugin;
+use leafwing_input_manager::plugin::InputManagerPlugin;
 
 mod menus;
-mod player;
 mod singleplayer;
 mod utils;
 
@@ -36,6 +36,9 @@ fn main() {
         .add_plugin(FrameTimeDiagnosticsPlugin::default())
         .add_plugin(EguiPlugin)
         .add_plugin(menus::MainMenuScene)
+        // This plugin maps inputs to an input-type agnostic action-state
+        // We need to provide it with an enum which stores the possible actions a player could take
+        .add_plugin(InputManagerPlugin::<singleplayer::player::Action>::default())
         .add_plugin(singleplayer::SinglePlayerScene)
         .add_state(GameState::MainMenu)
         .run();
