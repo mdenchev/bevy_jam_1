@@ -36,14 +36,13 @@ fn level_setup(mut commands: Commands, asset_server: Res<AssetServer>, mut map_q
     let mut outside_tile = TileBundle::default();
     outside_tile.tile.texture_index = 9;
     let mut floor_tile = TileBundle::default();
-    floor_tile.tile.texture_index = 0;
+    floor_tile.tile.texture_index = 4;
 
+    layer_builder.fill(TilePos(1, 1), TilePos(10, 10), floor_tile.clone());
     layer_builder.for_each_tiles_mut(|tile_entity, tile_data| {
-        *tile_data = Some(if rand::random() {
-            outside_tile.clone()
-        } else {
-            floor_tile.clone()
-        });
+        if tile_data.is_none() {
+            *tile_data = Some(outside_tile.clone());
+        }
 
         if tile_entity.is_none() {
             *tile_entity = Some(commands.spawn().id());
