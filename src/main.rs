@@ -1,3 +1,6 @@
+#![feature(try_blocks)]
+#![feature(let_else)]
+
 use bevy::prelude::*;
 use bevy::window::WindowMode;
 use heron::prelude::*;
