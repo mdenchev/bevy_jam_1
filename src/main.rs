@@ -1,19 +1,19 @@
 #![feature(try_blocks)]
 #![feature(let_else)]
 
+use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::prelude::*;
 use bevy::window::WindowMode;
+use bevy_egui::EguiPlugin;
+use bevy_kira_audio::AudioPlugin;
 use heron::prelude::*;
 use inputs::GameInputPlugin;
-use bevy_egui::EguiPlugin;
-use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
-use bevy_kira_audio::AudioPlugin;
 use resources::audio_channels::AudioChannels;
 
 mod inputs;
-mod player;
-mod menus;
 mod levels;
+mod menus;
+mod player;
 pub mod resources;
 mod utils;
 
