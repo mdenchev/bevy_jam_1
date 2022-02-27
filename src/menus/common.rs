@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 
+/// Marks a UI element as disabled.
 #[derive(Component)]
 pub struct Disabled;
 
@@ -7,6 +8,7 @@ pub const NORMAL_COLOR: UiColor = UiColor(Color::rgb(0.15, 0.15, 0.15));
 pub const HOVERED_COLOR: UiColor = UiColor(Color::rgb(0.25, 0.25, 0.25));
 pub const PRESSED_COLOR: UiColor = UiColor(Color::rgb(0.35, 0.75, 0.35));
 
+/// Creates the [`Style`]s that we add to most buttons.
 pub fn button_style() -> Style {
     Style {
         size: Size::new(Val::Px(150.0), Val::Px(35.0)),
@@ -17,6 +19,7 @@ pub fn button_style() -> Style {
     }
 }
 
+/// Creates the [`Style`]s that we add to most text.
 pub fn text_style() -> Style {
     Style {
         align_self: AlignSelf::Center,
@@ -26,6 +29,7 @@ pub fn text_style() -> Style {
     }
 }
 
+/// Creates the [`TextStyle`]s that we add to most text.
 pub fn text_textstyle(asset_server: &AssetServer) -> TextStyle {
     TextStyle {
         font: asset_server.load("fonts/FiraSans-Bold.ttf"),
@@ -42,6 +46,7 @@ pub fn text_textstyle_disabled(asset_server: &AssetServer) -> TextStyle {
     }
 }
 
+/// Creates the [`TextAlignment`]s that we add to most buttons.
 pub fn button_text_alignment() -> TextAlignment {
     TextAlignment {
         horizontal: HorizontalAlign::Center,
