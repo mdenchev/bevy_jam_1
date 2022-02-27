@@ -5,8 +5,11 @@ use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::prelude::*;
 use bevy::window::WindowMode;
 use bevy_egui::EguiPlugin;
+use bevy_kira_audio::AudioPlugin;
+use resources::audio_channels::AudioChannels;
 
 mod menus;
+pub mod resources;
 mod singleplayer;
 mod utils;
 
@@ -29,11 +32,13 @@ fn main() {
             ..Default::default()
         })
         .insert_resource(ClearColor(Color::rgb(0.11, 0.039, 0.004)))
+        .init_resource::<AudioChannels>()
         // Standard Bevy functionality
         .add_plugins(DefaultPlugins)
         .add_plugin(LogDiagnosticsPlugin::default())
         .add_plugin(FrameTimeDiagnosticsPlugin::default())
         .add_plugin(EguiPlugin)
+        .add_plugin(AudioPlugin)
         .add_plugin(menus::MainMenuScene)
         .add_plugin(singleplayer::SinglePlayerScene)
         .add_state(GameState::MainMenu)

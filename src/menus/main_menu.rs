@@ -1,6 +1,17 @@
-use bevy::{app::AppExit, prelude::*};
+use bevy::{
+    app::AppExit,
+    math::Size,
+    prelude::{
+        info, AssetServer, BuildChildren, Button, ButtonBundle, Changed, Color, Commands,
+        Component, EventWriter, NodeBundle, Query, Res, ResMut, State, TextBundle, UiCameraBundle,
+        With, Without,
+    },
+    text::Text,
+    ui::{FlexDirection, Interaction, JustifyContent, Style, UiColor, Val},
+};
+use bevy_kira_audio::Audio;
 
-use crate::{menus::common, GameState};
+use crate::{menus::common, resources::audio_channels::AudioChannels, GameState};
 
 use super::common::{Disabled, HOVERED_COLOR, NORMAL_COLOR, PRESSED_COLOR};
 
@@ -45,9 +56,17 @@ pub fn handle_buttons(
     Ok(())
 }
 
-pub fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
+pub fn setup(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    audio: Res<Audio>,
+    channels: ResMut<AudioChannels>,
+) {
     info!("[Scene:MainMenu:setup]");
     commands.spawn_bundle(UiCameraBundle::default());
+
+    // Play bg music
+    audio.play_looped_in_channel(asset_server.load("music/OutThere_0.ogg"), &channels.music);
 
     commands
         .spawn_bundle(NodeBundle {

@@ -19,8 +19,19 @@ opt-level = 3
 members = ["./", "tools/ci"]
 
 [dependencies]
-bevy = { version = "0.6" }
+# bevy without bevy_audio feature
+bevy = { version = "0.6", features = [
+    "bevy_gilrs",
+    "bevy_winit",
+    "render",
+    "png",
+    "hdr",
+    "vorbis",
+    "x11",
+    "filesystem_watcher"
+] }
 bevy_ecs_tilemap = "0.5"
 bevy_egui = "0.11"
 bevy_rapier2d = "0.12"
 anyhow = "1.0"
+bevy_kira_audio = "0.8"
