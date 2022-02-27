@@ -5,6 +5,7 @@ use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::prelude::*;
 use bevy::window::WindowMode;
 use bevy_egui::EguiPlugin;
+use bevy_inspector_egui::WorldInspectorPlugin;
 use bevy_kira_audio::AudioPlugin;
 use heron::prelude::*;
 use inputs::GameInputPlugin;
@@ -39,6 +40,7 @@ fn main() {
         .add_plugin(FrameTimeDiagnosticsPlugin::default())
         .add_plugin(EguiPlugin)
         .add_plugin(AudioPlugin)
+        .add_plugin(WorldInspectorPlugin::new())
         .add_plugin(menus::MainMenuScene)
         .add_plugin(levels::SinglePlayerScene)
         .add_state(GameState::MainMenu)
