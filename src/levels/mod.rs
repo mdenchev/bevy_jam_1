@@ -1,5 +1,6 @@
 use bevy::{input::mouse::MouseWheel, prelude::*};
 use bevy_ecs_tilemap::prelude::*;
+use rand::prelude::Distribution;
 
 use crate::GameState;
 
@@ -38,7 +39,25 @@ fn level_setup(mut commands: Commands, asset_server: Res<AssetServer>, mut map_q
     let mut floor_tile = TileBundle::default();
     floor_tile.tile.texture_index = 4;
 
-    layer_builder.fill(TilePos(1, 1), TilePos(10, 10), floor_tile.clone());
+    {
+        use rand::distributions::Uniform;
+        let mut rng = rand::thread_rng();
+        let size_distrib = Uniform::new(5, 15);
+        let settings = layer_builder.settings.clone();
+        for _ in 0..30 {
+            let size_x = size_distrib.sample(&mut rng);
+            let size_y = size_distrib.sample(&mut rng);
+            let x = Uniform::new(1, settings.map_size.0 * settings.chunk_size.0 - 1 - size_x)
+                .sample(&mut rng);
+            let y = Uniform::new(1, settings.map_size.1 * settings.chunk_size.1 - 1 - size_y)
+                .sample(&mut rng);
+            layer_builder.fill(
+                TilePos(x, y),
+                TilePos(x + size_x, y + size_y),
+                floor_tile.clone(),
+            );
+        }
+    }
     layer_builder.for_each_tiles_mut(|tile_entity, tile_data| {
         if tile_data.is_none() {
             *tile_data = Some(outside_tile.clone());
@@ -66,9 +85,7 @@ fn zoom_update(
 ) {
     for mut projection in query.iter_mut() {
         for ev in scroll.iter() {
-            let mut log_scale = projection.scale.ln();
-            log_scale += ev.y;
-            projection.scale = log_scale.exp();
+            projection.scale = (projection.scale - ev.y / 20.0).max(0.01);
         }
     }
 }
