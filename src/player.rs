@@ -1,18 +1,19 @@
-use std::{
-    ops::{Deref, DerefMut},
-    time::Duration,
-};
+use std::time::Duration;
 
 use bevy::{core::FixedTimestep, prelude::*};
 
 mod player_movement;
 
 use heron::{CollisionShape, RigidBody, RotationConstraints, Velocity};
-use player_movement::handle_player_input;
+use player_movement::player_movement;
 
-use crate::{utils::CommonHandles, GameState};
+use crate::{
+    gun::{GunBundle, GunType},
+    utils::CommonHandles,
+    GameState,
+};
 
-use self::player_movement::ControllablePlayer;
+use self::player_movement::{player_shooting, ControllablePlayer};
 
 pub struct PlayerPlugin;
 
@@ -24,15 +25,27 @@ impl Plugin for PlayerPlugin {
         )
         .add_system(
             //PlayerStage,
-            handle_player_input.with_run_criteria(FixedTimestep::steps_per_second(60.0)),
+            player_movement.with_run_criteria(FixedTimestep::steps_per_second(60.0)),
+        )
+        .add_system(
+            //PlayerStage,
+            player_shooting.with_run_criteria(FixedTimestep::steps_per_second(60.0)),
         )
         .add_system_set(SystemSet::on_update(GameState::Playing).with_system(cam_follow_player));
     }
 }
 
 // Going to want this to find the spawn point eventually.
-fn spawn_player(mut commands: Commands, common_handles: Res<CommonHandles>) {
+fn spawn_player(
+    mut commands: Commands,
+    common_handles: Res<CommonHandles>,
+    asset_server: Res<AssetServer>,
+) {
     info!("Spawning player!");
+    let transform = Transform::from_xyz(0.0, 0.0, 1.0);
+    let starting_gun = commands
+        .spawn_bundle(GunType::Shotgun.create_bundle(&*asset_server))
+        .id();
     commands
         .spawn_bundle(ControllablePlayerBundle::default())
         .insert_bundle(SpriteSheetBundle {
@@ -44,51 +57,24 @@ fn spawn_player(mut commands: Commands, common_handles: Res<CommonHandles>) {
         .insert(RigidBody::Dynamic)
         .insert(RotationConstraints::lock())
         .insert(CollisionShape::Sphere { radius: 10.0 })
-        .insert(Velocity::default());
+        .insert(Velocity::default())
+        .add_child(starting_gun);
 }
 
 #[derive(Bundle, Default)]
 pub struct ControllablePlayerBundle {
     controllable: ControllablePlayer,
     stats: PlayerStats,
-    shoot_timer: ShootTimer,
-}
-
-#[derive(Component)]
-pub struct ShootTimer(Timer);
-
-impl Deref for ShootTimer {
-    type Target = Timer;
-
-    fn deref(&self) -> &Self::Target {
-        &self.0
-    }
-}
-
-impl DerefMut for ShootTimer {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.0
-    }
-}
-
-impl Default for ShootTimer {
-    fn default() -> Self {
-        Self(Timer::new(Duration::from_millis(1), true))
-    }
 }
 
 #[derive(Component)]
 pub struct PlayerStats {
     pub speed: f32,
-    pub shoot_cooldown: Duration,
 }
 
 impl Default for PlayerStats {
     fn default() -> Self {
-        Self {
-            speed: 200.0,
-            shoot_cooldown: Duration::from_millis(400),
-        }
+        Self { speed: 200.0 }
     }
 }
 
