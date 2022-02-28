@@ -5,7 +5,7 @@ mod player_movement;
 use heron::{CollisionShape, RigidBody, RotationConstraints, Velocity};
 use player_movement::move_player;
 
-use crate::{inputs::PlayerInput, utils::CommonHandles, GameState};
+use crate::{utils::CommonHandles, GameState};
 
 use self::player_movement::ControllablePlayer;
 
