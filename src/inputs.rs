@@ -71,10 +71,26 @@ fn get_player_inputs(
 ) {
     // Create our move vector from keyboard inputs
     let mut move_direction = Vec2::ZERO;
-    move_direction.x -= if keys.pressed(KeyCode::A) { 1.0 } else { 0.0 };
-    move_direction.x += if keys.pressed(KeyCode::D) { 1.0 } else { 0.0 };
-    move_direction.y += if keys.pressed(KeyCode::W) { 1.0 } else { 0.0 };
-    move_direction.y -= if keys.pressed(KeyCode::S) { 1.0 } else { 0.0 };
+    move_direction.x -= if keys.pressed(KeyCode::A) || keys.pressed(KeyCode::Left) {
+        1.0
+    } else {
+        0.0
+    };
+    move_direction.x += if keys.pressed(KeyCode::D) || keys.pressed(KeyCode::Right) {
+        1.0
+    } else {
+        0.0
+    };
+    move_direction.y += if keys.pressed(KeyCode::W) || keys.pressed(KeyCode::Up) {
+        1.0
+    } else {
+        0.0
+    };
+    move_direction.y -= if keys.pressed(KeyCode::S) || keys.pressed(KeyCode::Down) {
+        1.0
+    } else {
+        0.0
+    };
     if move_direction.length_squared() != 0.0 {
         move_direction = move_direction.normalize();
     }

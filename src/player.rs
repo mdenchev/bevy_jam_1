@@ -5,7 +5,7 @@ mod player_movement;
 use heron::{CollisionShape, RigidBody, Velocity};
 use player_movement::move_player;
 
-use crate::{inputs::PlayerInput, utils::CommonHandles, GameState};
+use crate::{inputs::PlayerInput, item::Inventory, utils::CommonHandles, GameState};
 
 use self::player_movement::ControllablePlayer;
 
@@ -36,6 +36,7 @@ fn spawn_player(mut commands: Commands, common_handles: Res<CommonHandles>) {
             transform: Transform::from_xyz(0.0, 0.0, 1.0),
             ..Default::default()
         })
+        .insert(ControlledPlayer)
         .insert(RigidBody::Dynamic)
         .insert(CollisionShape::Sphere { radius: 10.0 })
         .insert(Velocity::default());
@@ -45,6 +46,7 @@ fn spawn_player(mut commands: Commands, common_handles: Res<CommonHandles>) {
 pub struct ControllablePlayerBundle {
     controllable: ControllablePlayer,
     stats: PlayerStats,
+    inventory: Inventory,
 }
 
 #[derive(Component)]
@@ -57,6 +59,10 @@ impl Default for PlayerStats {
         Self { speed: 200.0 }
     }
 }
+
+// Should mark the player currently under control but not ghosts
+#[derive(Component)]
+pub struct ControlledPlayer;
 
 fn cam_follow_player(
     player_input: Res<PlayerInput>,

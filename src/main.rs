@@ -12,6 +12,7 @@ use inputs::GameInputPlugin;
 use resources::audio_channels::AudioChannels;
 
 mod inputs;
+mod item;
 mod levels;
 mod menus;
 mod player;
