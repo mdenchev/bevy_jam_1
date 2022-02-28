@@ -10,6 +10,7 @@ use bevy_kira_audio::AudioPlugin;
 use heron::prelude::*;
 use resources::audio_channels::AudioChannels;
 
+pub mod gun;
 mod inputs;
 mod levels;
 mod menus;

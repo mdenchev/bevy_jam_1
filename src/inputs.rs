@@ -23,7 +23,7 @@ pub struct PlayerInput {
     pub dodge: ButtonState,
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum ButtonState {
     /// Is currently not pressed, and was not just released this frame
     Up,
@@ -33,6 +33,12 @@ pub enum ButtonState {
     Pressed,
     /// Was released this frame
     Released,
+}
+
+impl ButtonState {
+    pub fn is_down(&self) -> bool {
+        *self == ButtonState::Down || *self == ButtonState::Pressed
+    }
 }
 
 impl Default for ButtonState {
@@ -106,6 +112,6 @@ fn get_player_inputs(
     if mouse.pressed(MouseButton::Right) {
         player_input.throw.downgrade()
     } else {
-        player_input.shoot.upgrade()
+        player_input.throw.upgrade()
     };
 }
