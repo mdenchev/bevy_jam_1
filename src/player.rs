@@ -2,10 +2,10 @@ use bevy::{core::FixedTimestep, prelude::*};
 
 mod player_movement;
 
-use heron::{CollisionShape, RigidBody, Velocity};
+use heron::{CollisionShape, RigidBody, RotationConstraints, Velocity};
 use player_movement::move_player;
 
-use crate::{inputs::PlayerInput, utils::CommonHandles, GameState};
+use crate::{utils::CommonHandles, GameState};
 
 use self::player_movement::ControllablePlayer;
 
@@ -37,6 +37,7 @@ fn spawn_player(mut commands: Commands, common_handles: Res<CommonHandles>) {
             ..Default::default()
         })
         .insert(RigidBody::Dynamic)
+        .insert(RotationConstraints::lock())
         .insert(CollisionShape::Sphere { radius: 10.0 })
         .insert(Velocity::default());
 }
@@ -59,7 +60,6 @@ impl Default for PlayerStats {
 }
 
 fn cam_follow_player(
-    player_input: Res<PlayerInput>,
     mut queries: QuerySet<(
         QueryState<&mut Transform, With<Camera>>,
         QueryState<&Transform, (With<ControllablePlayer>, With<RigidBody>)>,
