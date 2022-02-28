@@ -24,16 +24,24 @@ pub fn player_movement(
 }
 
 pub fn player_shooting(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
     player_input: Res<PlayerInput>,
     time: Res<Time>,
     mut gun_query: Query<(&Parent, &mut GunTimer, &GunType)>,
-    player_query: Query<Entity, With<ControllablePlayer>>,
+    player_query: Query<&Transform, With<ControllablePlayer>>,
 ) {
     for (parent, mut gun_timer, gun_type) in gun_query.iter_mut() {
-        if player_query.get(parent.0).is_ok() {
+        if let Ok(player_transform) = player_query.get(parent.0) {
             gun_timer.tick(time.delta());
             if player_input.shoot.is_down() && gun_timer.finished() {
+                // FIXME; adding offset to avoid immediate collision with player
+                let mut bullet_transform = *player_transform;
+                bullet_transform.translation.x += 40.0;
                 info!("Player shoots {gun_type:?}");
+                commands
+                    .spawn_bundle(gun_type.create_bullet_bundle(&*asset_server))
+                    .insert(bullet_transform);
                 gun_timer.set_duration(gun_type.cooldown());
             }
         }

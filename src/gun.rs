@@ -4,17 +4,22 @@ use std::{
 };
 
 use bevy::prelude::*;
+use heron::{CollisionShape, RigidBody, RotationConstraints, Velocity};
 
 #[derive(Component, Debug, Default)]
-pub struct Bullet {
-    damage: f32,
+pub struct BulletStats {
+    _damage: f32,
 }
 
 #[derive(Bundle, Default)]
 pub struct BulletBundle {
-    bullet: Bullet,
+    bullet_stats: BulletStats,
     #[bundle]
     sprite: SpriteBundle,
+    rb: RigidBody,
+    constraints: RotationConstraints,
+    collision_shape: CollisionShape,
+    velocity: Velocity,
 }
 
 #[derive(Debug, Component, Clone, Copy)]
@@ -46,6 +51,28 @@ impl GunType {
                     ..Default::default()
                 },
                 gun_timer: GunTimer::default(),
+            },
+        }
+    }
+
+    pub fn create_bullet_bundle(&self, asset_server: &AssetServer) -> BulletBundle {
+        let transform = Transform::from_xyz(10.0, 0.0, 1.2);
+        match self {
+            GunType::Shotgun => BulletBundle {
+                bullet_stats: BulletStats { _damage: 3.0 },
+                sprite: SpriteBundle {
+                    texture: asset_server.load("images/shotgun_bullet.png"),
+                    transform,
+                    ..Default::default()
+                },
+                rb: RigidBody::Dynamic,
+                constraints: RotationConstraints::lock(),
+                collision_shape: CollisionShape::Cuboid {
+                    half_extends: Vec3::new(8f32, 1f32, 0f32),
+                    border_radius: None,
+                },
+                // FIXME; should calculate direction based on aim
+                velocity: Velocity::from_linear(Vec3::new(50.0, 50.0, 0.0)),
             },
         }
     }

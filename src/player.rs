@@ -1,5 +1,3 @@
-use std::time::Duration;
-
 use bevy::{core::FixedTimestep, prelude::*};
 
 mod player_movement;
@@ -7,11 +5,7 @@ mod player_movement;
 use heron::{CollisionShape, RigidBody, RotationConstraints, Velocity};
 use player_movement::player_movement;
 
-use crate::{
-    gun::{GunBundle, GunType},
-    utils::CommonHandles,
-    GameState,
-};
+use crate::{gun::GunType, utils::CommonHandles, GameState};
 
 use self::player_movement::{player_shooting, ControllablePlayer};
 
@@ -42,7 +36,6 @@ fn spawn_player(
     asset_server: Res<AssetServer>,
 ) {
     info!("Spawning player!");
-    let transform = Transform::from_xyz(0.0, 0.0, 1.0);
     let starting_gun = commands
         .spawn_bundle(GunType::Shotgun.create_bundle(&*asset_server))
         .id();
