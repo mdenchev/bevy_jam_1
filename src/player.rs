@@ -1,11 +1,11 @@
 use bevy::{core::FixedTimestep, prelude::*};
+use bevy_rapier2d::prelude::*;
 
 mod player_movement;
 
-use heron::{CollisionShape, RigidBody, Velocity};
 use player_movement::move_player;
 
-use crate::{inputs::PlayerInput, utils::CommonHandles, GameState};
+use crate::{utils::CommonHandles, GameState};
 
 use self::player_movement::ControllablePlayer;
 
@@ -33,12 +33,18 @@ fn spawn_player(mut commands: Commands, common_handles: Res<CommonHandles>) {
         .insert_bundle(SpriteSheetBundle {
             sprite: TextureAtlasSprite::new(32),
             texture_atlas: common_handles.player_sprites.clone(),
-            transform: Transform::from_xyz(0.0, 0.0, 1.0),
+            transform: Transform::from_xyz(0.0, 0.0, 100.0),
             ..Default::default()
         })
-        .insert(RigidBody::Dynamic)
-        .insert(CollisionShape::Sphere { radius: 10.0 })
-        .insert(Velocity::default());
+        .insert_bundle(RigidBodyBundle {
+            mass_properties: RigidBodyMassPropsFlags::ROTATION_LOCKED.into(),
+            ..Default::default()
+        })
+        .insert_bundle(ColliderBundle {
+            shape: ColliderShape::ball(14.0).into(),
+            ..Default::default()
+        })
+        .insert(RigidBodyPositionSync::Discrete);
 }
 
 #[derive(Bundle, Default)]
@@ -59,10 +65,9 @@ impl Default for PlayerStats {
 }
 
 fn cam_follow_player(
-    player_input: Res<PlayerInput>,
     mut queries: QuerySet<(
         QueryState<&mut Transform, With<Camera>>,
-        QueryState<&Transform, (With<ControllablePlayer>, With<RigidBody>)>,
+        QueryState<&Transform, (With<ControllablePlayer>, With<RigidBodyPositionComponent>)>,
     )>,
 ) {
     let mut player_position = if let Ok(player) = queries.q1().get_single() {

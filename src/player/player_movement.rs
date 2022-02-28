@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use heron::{RigidBody, Velocity};
+use bevy_rapier2d::{prelude::*};
 
 use crate::inputs::PlayerInput;
 
@@ -11,11 +11,16 @@ pub struct ControllablePlayer;
 pub fn move_player(
     player_input: Res<PlayerInput>,
     mut controllable_player: Query<
-        (&mut Velocity, &PlayerStats),
-        (With<ControllablePlayer>, With<RigidBody>),
+        (
+            &mut RigidBodyVelocityComponent,
+            &PlayerStats,
+        ),
+        With<ControllablePlayer>,
     >,
 ) {
     for (mut vel, stat) in controllable_player.iter_mut() {
-        vel.linear = Vec3::from((player_input.move_direction, 0.0)) * stat.speed;
+        let new_vel = player_input.move_direction * stat.speed;
+        vel.linvel = new_vel.into();
+        // vel.apply_impulse(rb_mprops, (new_vel * 40.0).into());
     }
 }

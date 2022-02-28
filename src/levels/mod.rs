@@ -1,6 +1,6 @@
 use bevy::{input::mouse::MouseWheel, prelude::*};
 use bevy_ecs_tilemap::prelude::*;
-use rand::prelude::Distribution;
+use bevy_rapier2d::prelude::*;
 
 use crate::GameState;
 
@@ -40,7 +40,7 @@ fn level_setup(mut commands: Commands, asset_server: Res<AssetServer>, mut map_q
     floor_tile.tile.texture_index = 4;
 
     {
-        layer_builder.for_each_tiles_mut(|ent, data| {
+        layer_builder.for_each_tiles_mut(|_ent, data| {
             *data = Some(if rand::random::<f32>() > 0.55 {
                 floor_tile.clone()
             } else {
@@ -124,6 +124,26 @@ fn level_setup(mut commands: Commands, asset_server: Res<AssetServer>, mut map_q
                 }
                 if neighbors == 4 {
                     *layer_builder.get_tile_mut(tile_pos).unwrap() = floor_tile.clone();
+                } else {
+                    let (x, y) = (
+                        tile_pos.0 as f32 * 32.0 + 16.0,
+                        tile_pos.1 as f32 * 32.0 + 16.0,
+                    );
+                    let child = commands
+                        .spawn()
+                        .insert_bundle(RigidBodyBundle {
+                            body_type: RigidBodyType::Static.into(),
+                            position: Vec2::new(x, y).into(),
+                            ..Default::default()
+                        })
+                        .insert_bundle(ColliderBundle {
+                            shape: ColliderShape::cuboid(16.0, 16.0).into(),
+                            ..Default::default()
+                        })
+                        // .insert(ColliderDebugRender::with_id(1))
+                        .id();
+                    println!("added collider at {x}, {y}");
+                    commands.entity(map_entity).add_child(child);
                 }
             }
         }
@@ -136,7 +156,7 @@ fn level_setup(mut commands: Commands, asset_server: Res<AssetServer>, mut map_q
     commands
         .entity(map_entity)
         .insert(map)
-        .insert(Transform::from_xyz(-128.0, -128.0, 0.0))
+        .insert(Transform::from_xyz(0.0, 0.0, 0.0))
         .insert(GlobalTransform::default());
 }
 

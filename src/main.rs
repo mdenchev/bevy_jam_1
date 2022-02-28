@@ -7,8 +7,8 @@ use bevy::window::WindowMode;
 use bevy_egui::EguiPlugin;
 use bevy_inspector_egui::WorldInspectorPlugin;
 use bevy_kira_audio::AudioPlugin;
-use heron::prelude::*;
-use inputs::GameInputPlugin;
+use bevy_rapier2d::physics::{NoUserData, RapierPhysicsPlugin};
+use bevy_rapier2d::render::RapierRenderPlugin;
 use resources::audio_channels::AudioChannels;
 
 mod inputs;
@@ -34,7 +34,8 @@ fn main() {
         // Standard Bevy functionality
         .add_plugins(DefaultPlugins)
         .add_plugin(utils::UtilsPlugin)
-        .add_plugin(PhysicsPlugin::default())
+        .add_plugin(RapierPhysicsPlugin::<NoUserData>::default())
+        .add_plugin(RapierRenderPlugin)
         .add_plugin(inputs::GameInputPlugin)
         .add_plugin(LogDiagnosticsPlugin::default())
         .add_plugin(FrameTimeDiagnosticsPlugin::default())
