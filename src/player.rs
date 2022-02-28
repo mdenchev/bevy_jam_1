@@ -1,9 +1,14 @@
+use std::{
+    ops::{Deref, DerefMut},
+    time::Duration,
+};
+
 use bevy::{core::FixedTimestep, prelude::*};
 
 mod player_movement;
 
 use heron::{CollisionShape, RigidBody, RotationConstraints, Velocity};
-use player_movement::move_player;
+use player_movement::handle_player_input;
 
 use crate::{utils::CommonHandles, GameState};
 
@@ -19,7 +24,7 @@ impl Plugin for PlayerPlugin {
         )
         .add_system(
             //PlayerStage,
-            move_player.with_run_criteria(FixedTimestep::steps_per_second(60.0)),
+            handle_player_input.with_run_criteria(FixedTimestep::steps_per_second(60.0)),
         )
         .add_system_set(SystemSet::on_update(GameState::Playing).with_system(cam_follow_player));
     }
@@ -46,16 +51,44 @@ fn spawn_player(mut commands: Commands, common_handles: Res<CommonHandles>) {
 pub struct ControllablePlayerBundle {
     controllable: ControllablePlayer,
     stats: PlayerStats,
+    shoot_timer: ShootTimer,
+}
+
+#[derive(Component)]
+pub struct ShootTimer(Timer);
+
+impl Deref for ShootTimer {
+    type Target = Timer;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl DerefMut for ShootTimer {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
+    }
+}
+
+impl Default for ShootTimer {
+    fn default() -> Self {
+        Self(Timer::new(Duration::from_millis(1), true))
+    }
 }
 
 #[derive(Component)]
 pub struct PlayerStats {
     pub speed: f32,
+    pub shoot_cooldown: Duration,
 }
 
 impl Default for PlayerStats {
     fn default() -> Self {
-        Self { speed: 200.0 }
+        Self {
+            speed: 200.0,
+            shoot_cooldown: Duration::from_millis(400),
+        }
     }
 }
 
