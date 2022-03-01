@@ -69,7 +69,7 @@ impl GunType {
     ) -> BulletBundle {
         let aim_direction = aim_direction.extend(0.0);
         let transform = Transform {
-            translation: origin + aim_direction * 30.0 + Vec3::Z * 1.2,
+            translation: origin + aim_direction * 12.0 + Vec3::Z * 1.2,
             rotation: Quat::from_axis_angle(Vec3::Z, aim_direction.y.atan2(aim_direction.x)),
             ..Default::default()
         };
