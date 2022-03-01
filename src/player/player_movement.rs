@@ -3,7 +3,7 @@ use heron::{RigidBody, Velocity};
 
 use crate::{
     gun::{GunTimer, GunType},
-    inputs::PlayerInput,
+    inputs::PlayerInput, resources::audio_channels::AudioChannels,
 };
 
 use super::PlayerStats;
@@ -25,6 +25,8 @@ pub fn player_movement(
 
 pub fn player_shooting(
     mut commands: Commands,
+    audio: Res<bevy_kira_audio::Audio>,
+    channels: Res<AudioChannels>,
     asset_server: Res<AssetServer>,
     player_input: Res<PlayerInput>,
     time: Res<Time>,
@@ -40,12 +42,14 @@ pub fn player_shooting(
             // Shoot
             if player_input.shoot.is_down() && gun_timer.finished() {
                 info!("Player shoots {gun_type:?}");
+                gun_type.play_sfx(&*audio, &channels.audio, &*asset_server);
                 commands.spawn_bundle(gun_type.create_bullet_bundle(
                     &*asset_server,
                     player_transform.translation + gun_transform.translation,
                     player_input.aim_direction,
                 ));
                 gun_timer.set_duration(gun_type.cooldown());
+
             }
             // Orient gun
             gun_transform.rotation = Quat::from_axis_angle(
