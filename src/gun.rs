@@ -40,6 +40,12 @@ impl GunType {
         }
     }
 
+    pub fn velocity(&self) -> f32 {
+        match self {
+            GunType::Shotgun => 200.0,
+        }
+    }
+
     pub fn create_bundle(&self, asset_server: &AssetServer) -> GunBundle {
         let transform = Transform::from_xyz(10.0, 0.0, 1.1);
         match self {
@@ -55,8 +61,18 @@ impl GunType {
         }
     }
 
-    pub fn create_bullet_bundle(&self, asset_server: &AssetServer) -> BulletBundle {
-        let transform = Transform::from_xyz(10.0, 0.0, 1.2);
+    pub fn create_bullet_bundle(
+        &self,
+        asset_server: &AssetServer,
+        origin: Vec3,
+        aim_direction: Vec2,
+    ) -> BulletBundle {
+        let aim_direction = aim_direction.extend(0.0);
+        let transform = Transform {
+            translation: origin + aim_direction * 30.0 + Vec3::Z * 1.2,
+            rotation: Quat::from_axis_angle(Vec3::Z, aim_direction.y.atan2(aim_direction.x)),
+            ..Default::default()
+        };
         match self {
             GunType::Shotgun => BulletBundle {
                 bullet_stats: BulletStats { _damage: 3.0 },
@@ -71,8 +87,7 @@ impl GunType {
                     half_extends: Vec3::new(8f32, 1f32, 0f32),
                     border_radius: None,
                 },
-                // FIXME; should calculate direction based on aim
-                velocity: Velocity::from_linear(Vec3::new(50.0, 50.0, 0.0)),
+                velocity: Velocity::from_linear(aim_direction * self.velocity()),
             },
         }
     }
