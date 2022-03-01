@@ -60,7 +60,7 @@ pub fn setup(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     audio: Res<Audio>,
-    channels: ResMut<AudioChannels>,
+    channels: Res<AudioChannels>,
 ) {
     info!("[Scene:MainMenu:setup]");
     commands.spawn_bundle(UiCameraBundle::default());

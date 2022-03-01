@@ -2,12 +2,12 @@ use bevy::{core::FixedTimestep, prelude::*};
 
 mod player_movement;
 
-use heron::{CollisionShape, RigidBody, Velocity};
-use player_movement::move_player;
+use heron::{CollisionShape, RigidBody, RotationConstraints, Velocity};
+use player_movement::player_movement;
 
-use crate::{inputs::PlayerInput, item::Inventory, utils::CommonHandles, GameState};
+use crate::{gun::GunType, item::Inventory, utils::CommonHandles, GameState};
 
-use self::player_movement::ControllablePlayer;
+use self::player_movement::{player_shooting, ControllablePlayer};
 
 pub struct PlayerPlugin;
 
@@ -19,15 +19,26 @@ impl Plugin for PlayerPlugin {
         )
         .add_system(
             //PlayerStage,
-            move_player.with_run_criteria(FixedTimestep::steps_per_second(60.0)),
+            player_movement.with_run_criteria(FixedTimestep::steps_per_second(60.0)),
+        )
+        .add_system(
+            //PlayerStage,
+            player_shooting.with_run_criteria(FixedTimestep::steps_per_second(60.0)),
         )
         .add_system_set(SystemSet::on_update(GameState::Playing).with_system(cam_follow_player));
     }
 }
 
 // Going to want this to find the spawn point eventually.
-fn spawn_player(mut commands: Commands, common_handles: Res<CommonHandles>) {
+fn spawn_player(
+    mut commands: Commands,
+    common_handles: Res<CommonHandles>,
+    asset_server: Res<AssetServer>,
+) {
     info!("Spawning player!");
+    let starting_gun = commands
+        .spawn_bundle(GunType::Shotgun.create_bundle(&*asset_server))
+        .id();
     commands
         .spawn_bundle(ControllablePlayerBundle::default())
         .insert_bundle(SpriteSheetBundle {
@@ -38,8 +49,10 @@ fn spawn_player(mut commands: Commands, common_handles: Res<CommonHandles>) {
         })
         .insert(ControlledPlayer)
         .insert(RigidBody::Dynamic)
+        .insert(RotationConstraints::lock())
         .insert(CollisionShape::Sphere { radius: 10.0 })
-        .insert(Velocity::default());
+        .insert(Velocity::default())
+        .add_child(starting_gun);
 }
 
 #[derive(Bundle, Default)]
@@ -65,7 +78,6 @@ impl Default for PlayerStats {
 pub struct ControlledPlayer;
 
 fn cam_follow_player(
-    player_input: Res<PlayerInput>,
     mut queries: QuerySet<(
         QueryState<&mut Transform, With<Camera>>,
         QueryState<&Transform, (With<ControllablePlayer>, With<RigidBody>)>,

@@ -8,9 +8,9 @@ use bevy_egui::EguiPlugin;
 use bevy_inspector_egui::WorldInspectorPlugin;
 use bevy_kira_audio::AudioPlugin;
 use heron::prelude::*;
-use inputs::GameInputPlugin;
 use resources::audio_channels::AudioChannels;
 
+pub mod gun;
 mod inputs;
 mod item;
 mod levels;
