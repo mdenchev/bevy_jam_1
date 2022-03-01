@@ -2,7 +2,7 @@ use bevy::{core::FixedTimestep, prelude::*};
 
 mod player_movement;
 
-use heron::{CollisionShape, RigidBody, RotationConstraints, Velocity};
+use heron::{CollisionLayers, CollisionShape, RigidBody, RotationConstraints, Velocity};
 use player_movement::player_movement;
 
 use crate::{
@@ -66,6 +66,15 @@ fn spawn_player(
         .insert(RotationConstraints::lock())
         .insert(CollisionShape::Sphere { radius: 10.0 })
         .insert(Velocity::default())
+        .insert(
+            CollisionLayers::none()
+                .with_group(crate::GameLayers::Player)
+                .with_masks(&[
+                    crate::GameLayers::World,
+                    crate::GameLayers::Enemies,
+                    crate::GameLayers::Pickups,
+                ]),
+        )
         .add_child(starting_gun);
 }
 

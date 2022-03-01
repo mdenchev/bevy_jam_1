@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use heron::{RigidBody, Velocity};
+use heron::{CollisionLayers, RigidBody, Velocity};
 
 use crate::{
     gun::{GunTimer, GunType},
@@ -44,11 +44,17 @@ pub fn player_shooting(
             if player_input.shoot.is_down() && gun_timer.finished() {
                 info!("Player shoots {gun_type:?}");
                 gun_type.play_sfx(&*audio, &channels.audio, &*asset_server);
-                commands.spawn_bundle(gun_type.create_bullet_bundle(
-                    &*asset_server,
-                    player_transform.translation + gun_transform.translation,
-                    player_input.aim_direction,
-                ));
+                commands
+                    .spawn_bundle(gun_type.create_bullet_bundle(
+                        &*asset_server,
+                        player_transform.translation + gun_transform.translation,
+                        player_input.aim_direction,
+                    ))
+                    .insert(
+                        CollisionLayers::none()
+                            .with_group(crate::GameLayers::Bullets)
+                            .with_masks(&[crate::GameLayers::World, crate::GameLayers::Enemies]),
+                    );
                 gun_timer.set_duration(gun_type.cooldown());
                 gun_timer.reset();
             }
