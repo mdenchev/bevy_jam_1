@@ -133,6 +133,6 @@ impl DerefMut for GunTimer {
 
 impl Default for GunTimer {
     fn default() -> Self {
-        Self(Timer::new(Duration::from_millis(1), true)) // 0 causes a panic
+        Self(Timer::new(Duration::from_millis(1), false)) // 0 causes a panic
     }
 }
