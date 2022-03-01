@@ -28,21 +28,33 @@ pub fn player_shooting(
     asset_server: Res<AssetServer>,
     player_input: Res<PlayerInput>,
     time: Res<Time>,
-    mut gun_query: Query<(&Parent, &mut GunTimer, &GunType)>,
-    player_query: Query<&Transform, With<ControllablePlayer>>,
+    mut queries: QuerySet<(
+        QueryState<(Entity, &Transform), With<ControllablePlayer>>,
+        QueryState<(&Parent, &mut Transform, &mut GunTimer, &GunType)>,
+    )>,
 ) {
-    for (parent, mut gun_timer, gun_type) in gun_query.iter_mut() {
-        if let Ok(player_transform) = player_query.get(parent.0) {
+    let Ok((player_ent, &player_transform)) = queries.q0().get_single() else {return};
+    for (parent, mut gun_transform, mut gun_timer, gun_type) in queries.q1().iter_mut() {
+        if parent.0 == player_ent {
             gun_timer.tick(time.delta());
+            // Shoot
             if player_input.shoot.is_down() && gun_timer.finished() {
                 info!("Player shoots {gun_type:?}");
                 commands.spawn_bundle(gun_type.create_bullet_bundle(
                     &*asset_server,
-                    player_transform.translation,
+                    player_transform.translation + gun_transform.translation,
                     player_input.aim_direction,
                 ));
                 gun_timer.set_duration(gun_type.cooldown());
             }
+            // Orient gun
+            gun_transform.rotation = Quat::from_axis_angle(
+                Vec3::Z,
+                player_input
+                    .aim_direction
+                    .y
+                    .atan2(player_input.aim_direction.x),
+            );
         }
     }
 }
