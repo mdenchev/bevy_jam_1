@@ -4,7 +4,18 @@ use std::{
 };
 
 use bevy::prelude::*;
-use heron::{CollisionShape, RigidBody, RotationConstraints, Velocity};
+use heron::{
+    rapier_plugin::{convert::IntoRapier, rapier2d::prelude::RigidBodySet, RigidBodyHandle},
+    CollisionShape, RigidBody, RotationConstraints, Velocity,
+};
+
+pub struct GunPlugin;
+
+impl Plugin for GunPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_system(enable_bullet_ccd);
+    }
+}
 
 #[derive(Component, Debug, Default)]
 pub struct BulletStats {
@@ -42,7 +53,7 @@ impl GunType {
 
     pub fn velocity(&self) -> f32 {
         match self {
-            GunType::Shotgun => 300.0,
+            GunType::Shotgun => 3000.0,
         }
     }
 
@@ -106,6 +117,17 @@ impl GunType {
     }
 }
 
+fn enable_bullet_ccd(
+    mut rigid_bodies: ResMut<RigidBodySet>,
+    new_handles: Query<&RigidBodyHandle, (With<BulletStats>, Added<RigidBodyHandle>)>,
+) {
+    for handle in new_handles.iter() {
+        if let Some(body) = rigid_bodies.get_mut(handle.into_rapier()) {
+            body.enable_ccd(true);
+        }
+    }
+}
+
 #[derive(Bundle, Default)]
 pub struct GunBundle {
     gun_type: GunType,
@@ -133,6 +155,6 @@ impl DerefMut for GunTimer {
 
 impl Default for GunTimer {
     fn default() -> Self {
-        Self(Timer::new(Duration::from_millis(1), true)) // 0 causes a panic
+        Self(Timer::new(Duration::from_millis(1), false)) // 0 causes a panic
     }
 }

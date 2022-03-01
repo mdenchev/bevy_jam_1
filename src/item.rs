@@ -183,11 +183,9 @@ fn scroll_inventory(
 ) {
     curr_players.for_each_mut(|mut inventory| {
         if player_input.inventory_next.was_pressed() {
-            info!("test");
             inventory.hold_next_item();
         }
         if player_input.inventory_prev.was_pressed() {
-            info!("test");
             inventory.hold_prev_item();
         }
     });
