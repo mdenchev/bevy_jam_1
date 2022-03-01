@@ -50,6 +50,7 @@ pub fn player_shooting(
                     player_input.aim_direction,
                 ));
                 gun_timer.set_duration(gun_type.cooldown());
+                gun_timer.reset();
             }
             // Orient gun
             gun_transform.rotation = Quat::from_axis_angle(
