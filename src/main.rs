@@ -44,6 +44,7 @@ fn main() {
         .add_plugin(player::PlayerPlugin)
         .add_plugin(menus::MainMenuScene)
         .add_plugin(levels::SinglePlayerScene)
+        .add_plugin(gun::GunPlugin)
         .add_state(GameState::MainMenu)
         .run();
 }
