@@ -3,7 +3,7 @@ use std::{
     time::Duration,
 };
 
-use bevy::{prelude::*, utils::HashSet};
+use bevy::prelude::*;
 use heron::{
     rapier_plugin::{convert::IntoRapier, rapier2d::prelude::RigidBodySet, RigidBodyHandle},
     CollisionEvent, CollisionShape, RigidBody, RotationConstraints, Velocity,

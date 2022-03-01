@@ -1,7 +1,7 @@
 #![feature(try_blocks)]
 #![feature(let_else)]
 
-use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
+use bevy::diagnostic::FrameTimeDiagnosticsPlugin;
 use bevy::prelude::*;
 use bevy::window::WindowMode;
 use bevy_egui::EguiPlugin;

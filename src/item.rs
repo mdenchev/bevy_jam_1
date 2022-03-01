@@ -45,6 +45,7 @@ pub struct Inventory {
 }
 
 impl Inventory {
+    #[allow(dead_code)]
     pub fn add_item(&mut self, item: Item) {
         if self.held_item > self.items.len() {
             self.held_item = self.items.len();
@@ -52,6 +53,7 @@ impl Inventory {
         self.items.push(item);
     }
 
+    #[allow(dead_code)]
     pub fn drop_item(&mut self) -> Option<Item> {
         if self.held_item < self.items.len() {
             Some(self.items.remove(self.held_item))
