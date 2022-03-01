@@ -3,17 +3,18 @@ use std::{
     time::Duration,
 };
 
-use bevy::prelude::*;
+use bevy::{prelude::*, utils::HashSet};
 use heron::{
     rapier_plugin::{convert::IntoRapier, rapier2d::prelude::RigidBodySet, RigidBodyHandle},
-    CollisionShape, RigidBody, RotationConstraints, Velocity,
+    CollisionEvent, CollisionShape, RigidBody, RotationConstraints, Velocity,
 };
 
 pub struct GunPlugin;
 
 impl Plugin for GunPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system(enable_bullet_ccd);
+        app.add_system(enable_bullet_ccd)
+            .add_system(despawn_on_collision);
     }
 }
 
@@ -126,6 +127,19 @@ fn enable_bullet_ccd(
             body.enable_ccd(true);
         }
     }
+}
+
+fn despawn_on_collision(mut commands: Commands, mut events: EventReader<CollisionEvent>) {
+    events.iter().filter(|e| e.is_started()).for_each(|ev| {
+        let (e1, e2) = ev.rigid_body_entities();
+        let (l1, l2) = ev.collision_layers();
+        use crate::GameLayers::*;
+        if l1.contains_group(World) && l2.contains_group(Bullets) {
+            commands.entity(e2).despawn();
+        } else if l1.contains_group(Bullets) && l2.contains_group(World) {
+            commands.entity(e1).despawn();
+        }
+    });
 }
 
 #[derive(Bundle, Default)]

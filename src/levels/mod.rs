@@ -1,6 +1,6 @@
 use bevy::{input::mouse::MouseWheel, prelude::*};
 use bevy_ecs_tilemap::prelude::*;
-use heron::{CollisionShape, RigidBody};
+use heron::{CollisionLayers, CollisionShape, RigidBody};
 
 use crate::{player::PlayerStats, GameState};
 
@@ -155,6 +155,15 @@ fn level_setup(mut commands: Commands, asset_server: Res<AssetServer>, mut map_q
                             half_extends: Vec3::new(16.0, 16.0, 0.0),
                             border_radius: None,
                         })
+                        .insert(
+                            CollisionLayers::none()
+                                .with_group(crate::GameLayers::World)
+                                .with_masks(&[
+                                    crate::GameLayers::Player,
+                                    crate::GameLayers::Bullets,
+                                    crate::GameLayers::Enemies,
+                                ]),
+                        )
                         .id();
                     commands.entity(map_entity).add_child(child);
                 }

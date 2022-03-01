@@ -57,3 +57,12 @@ pub enum GameState {
     Playing,
     GameOver,
 }
+
+#[derive(Clone, Eq, PartialEq, Debug, Hash, PhysicsLayer)]
+pub enum GameLayers {
+    World,
+    Bullets,
+    Player,
+    Enemies,
+    Pickups,
+}
