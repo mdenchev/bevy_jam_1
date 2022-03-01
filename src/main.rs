@@ -12,6 +12,7 @@ use resources::audio_channels::AudioChannels;
 
 pub mod gun;
 mod inputs;
+mod item;
 mod levels;
 mod menus;
 mod player;
@@ -36,7 +37,7 @@ fn main() {
         .add_plugin(utils::UtilsPlugin)
         .add_plugin(PhysicsPlugin::default())
         .add_plugin(inputs::GameInputPlugin)
-        .add_plugin(LogDiagnosticsPlugin::default())
+        // .add_plugin(LogDiagnosticsPlugin::default())
         .add_plugin(FrameTimeDiagnosticsPlugin::default())
         .add_plugin(EguiPlugin)
         .add_plugin(AudioPlugin)
@@ -44,6 +45,7 @@ fn main() {
         .add_plugin(player::PlayerPlugin)
         .add_plugin(menus::MainMenuScene)
         .add_plugin(levels::SinglePlayerScene)
+        .add_plugin(item::ItemPlugin)
         .add_plugin(gun::GunPlugin)
         .add_state(GameState::MainMenu)
         .run();

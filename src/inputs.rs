@@ -21,6 +21,8 @@ pub struct PlayerInput {
     pub shoot: ButtonState,
     pub throw: ButtonState,
     pub dodge: ButtonState,
+    pub inventory_next: ButtonState,
+    pub inventory_prev: ButtonState,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -38,6 +40,10 @@ pub enum ButtonState {
 impl ButtonState {
     pub fn is_down(&self) -> bool {
         *self == ButtonState::Down || *self == ButtonState::Pressed
+    }
+
+    pub fn was_pressed(&self) -> bool {
+        *self == ButtonState::Pressed
     }
 }
 
@@ -77,10 +83,26 @@ fn get_player_inputs(
 ) {
     // Create our move vector from keyboard inputs
     let mut move_direction = Vec2::ZERO;
-    move_direction.x -= if keys.pressed(KeyCode::A) { 1.0 } else { 0.0 };
-    move_direction.x += if keys.pressed(KeyCode::D) { 1.0 } else { 0.0 };
-    move_direction.y += if keys.pressed(KeyCode::W) { 1.0 } else { 0.0 };
-    move_direction.y -= if keys.pressed(KeyCode::S) { 1.0 } else { 0.0 };
+    move_direction.x -= if keys.pressed(KeyCode::A) || keys.pressed(KeyCode::Left) {
+        1.0
+    } else {
+        0.0
+    };
+    move_direction.x += if keys.pressed(KeyCode::D) || keys.pressed(KeyCode::Right) {
+        1.0
+    } else {
+        0.0
+    };
+    move_direction.y += if keys.pressed(KeyCode::W) || keys.pressed(KeyCode::Up) {
+        1.0
+    } else {
+        0.0
+    };
+    move_direction.y -= if keys.pressed(KeyCode::S) || keys.pressed(KeyCode::Down) {
+        1.0
+    } else {
+        0.0
+    };
     if move_direction.length_squared() != 0.0 {
         move_direction = move_direction.normalize();
     }
@@ -114,4 +136,14 @@ fn get_player_inputs(
     } else {
         player_input.throw.upgrade()
     };
+    if keys.pressed(KeyCode::Q) {
+        player_input.inventory_next.downgrade();
+    } else {
+        player_input.inventory_next.upgrade();
+    }
+    if keys.pressed(KeyCode::E) {
+        player_input.inventory_prev.downgrade();
+    } else {
+        player_input.inventory_prev.upgrade();
+    }
 }
