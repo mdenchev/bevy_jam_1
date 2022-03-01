@@ -35,13 +35,12 @@ pub fn player_shooting(
         if let Ok(player_transform) = player_query.get(parent.0) {
             gun_timer.tick(time.delta());
             if player_input.shoot.is_down() && gun_timer.finished() {
-                // FIXME; adding offset to avoid immediate collision with player
-                let mut bullet_transform = *player_transform;
-                bullet_transform.translation.x += 40.0;
                 info!("Player shoots {gun_type:?}");
-                commands
-                    .spawn_bundle(gun_type.create_bullet_bundle(&*asset_server))
-                    .insert(bullet_transform);
+                commands.spawn_bundle(gun_type.create_bullet_bundle(
+                    &*asset_server,
+                    player_transform.translation,
+                    player_input.aim_direction,
+                ));
                 gun_timer.set_duration(gun_type.cooldown());
             }
         }
