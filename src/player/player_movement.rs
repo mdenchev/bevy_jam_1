@@ -3,7 +3,8 @@ use heron::{RigidBody, Velocity};
 
 use crate::{
     gun::{GunTimer, GunType},
-    inputs::PlayerInput, resources::audio_channels::AudioChannels,
+    inputs::PlayerInput,
+    resources::audio_channels::AudioChannels,
 };
 
 use super::PlayerStats;
@@ -49,7 +50,6 @@ pub fn player_shooting(
                     player_input.aim_direction,
                 ));
                 gun_timer.set_duration(gun_type.cooldown());
-
             }
             // Orient gun
             gun_transform.rotation = Quat::from_axis_angle(

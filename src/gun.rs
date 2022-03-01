@@ -99,7 +99,9 @@ impl GunType {
         asset_server: &AssetServer,
     ) {
         match self {
-            GunType::Shotgun => audio.play_in_channel(asset_server.load("sfx/shotgun.wav"), channel),
+            GunType::Shotgun => {
+                audio.play_in_channel(asset_server.load("sfx/shotgun.wav"), channel)
+            }
         };
     }
 }
