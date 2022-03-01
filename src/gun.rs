@@ -36,13 +36,13 @@ impl Default for GunType {
 impl GunType {
     pub fn cooldown(&self) -> Duration {
         match self {
-            GunType::Shotgun => Duration::from_millis(400),
+            GunType::Shotgun => Duration::from_millis(700),
         }
     }
 
     pub fn velocity(&self) -> f32 {
         match self {
-            GunType::Shotgun => 200.0,
+            GunType::Shotgun => 300.0,
         }
     }
 
@@ -90,6 +90,19 @@ impl GunType {
                 velocity: Velocity::from_linear(aim_direction * self.velocity()),
             },
         }
+    }
+
+    pub fn play_sfx(
+        &self,
+        audio: &bevy_kira_audio::Audio,
+        channel: &bevy_kira_audio::AudioChannel,
+        asset_server: &AssetServer,
+    ) {
+        match self {
+            GunType::Shotgun => {
+                audio.play_in_channel(asset_server.load("sfx/shotgun.wav"), channel)
+            }
+        };
     }
 }
 
