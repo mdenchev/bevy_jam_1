@@ -4,7 +4,15 @@ use std::{
 };
 
 use bevy::prelude::*;
-use heron::{CollisionShape, RigidBody, RotationConstraints, Velocity};
+use heron::{CollisionShape, RigidBody, RotationConstraints, Velocity, rapier_plugin::{rapier2d::prelude::RigidBodySet, RigidBodyHandle, convert::IntoRapier}};
+
+pub struct GunPlugin;
+
+impl Plugin for GunPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_system(enable_bullet_ccd);
+    }
+}
 
 #[derive(Component, Debug, Default)]
 pub struct BulletStats {
@@ -42,7 +50,7 @@ impl GunType {
 
     pub fn velocity(&self) -> f32 {
         match self {
-            GunType::Shotgun => 300.0,
+            GunType::Shotgun => 3000.0,
         }
     }
 
@@ -103,6 +111,14 @@ impl GunType {
                 audio.play_in_channel(asset_server.load("sfx/shotgun.wav"), channel)
             }
         };
+    }
+}
+
+fn enable_bullet_ccd(mut rigid_bodies: ResMut<RigidBodySet>, new_handles: Query<&RigidBodyHandle, (With<BulletStats>, Added<RigidBodyHandle>)>) {
+    for handle in new_handles.iter() {
+        if let Some(body) = rigid_bodies.get_mut(handle.into_rapier()) {
+            body.enable_ccd(true);
+        }
     }
 }
 
