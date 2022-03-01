@@ -5,7 +5,13 @@ mod player_movement;
 use heron::{CollisionShape, RigidBody, RotationConstraints, Velocity};
 use player_movement::player_movement;
 
-use crate::{gun::GunType, item::Inventory, utils::CommonHandles, GameState};
+use crate::{
+    gun::GunType,
+    item::{Inventory, Item},
+    levels::MainCamera,
+    utils::CommonHandles,
+    GameState,
+};
 
 use self::player_movement::{player_shooting, ControllablePlayer};
 
@@ -39,6 +45,13 @@ fn spawn_player(
     let starting_gun = commands
         .spawn_bundle(GunType::Shotgun.create_bundle(&*asset_server))
         .id();
+
+    // This bit is unergonomic, but this shouldn't matter later, when the player doesn't start with items
+    let mut starting_inventory = Inventory::default();
+    starting_inventory.add_item(Item::Gun(GunType::Shotgun));
+    starting_inventory.add_item(Item::Grenade);
+    starting_inventory.add_item(Item::Totem);
+
     commands
         .spawn_bundle(ControllablePlayerBundle::default())
         .insert_bundle(SpriteSheetBundle {
@@ -48,6 +61,7 @@ fn spawn_player(
             ..Default::default()
         })
         .insert(ControlledPlayer)
+        .insert(starting_inventory)
         .insert(RigidBody::Dynamic)
         .insert(RotationConstraints::lock())
         .insert(CollisionShape::Sphere { radius: 10.0 })
@@ -79,7 +93,7 @@ pub struct ControlledPlayer;
 
 fn cam_follow_player(
     mut queries: QuerySet<(
-        QueryState<&mut Transform, With<Camera>>,
+        QueryState<&mut Transform, With<MainCamera>>,
         QueryState<&Transform, (With<ControllablePlayer>, With<RigidBody>)>,
     )>,
 ) {
@@ -88,6 +102,7 @@ fn cam_follow_player(
     } else {
         return;
     };
+
     if let Ok(mut camera) = queries.q0().get_single_mut() {
         player_position.z = camera.translation.z;
         camera.translation = player_position;

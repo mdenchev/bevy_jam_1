@@ -22,9 +22,14 @@ impl Plugin for SinglePlayerScene {
     }
 }
 
+#[derive(Component)]
+pub struct MainCamera;
+
 fn level_setup(mut commands: Commands, asset_server: Res<AssetServer>, mut map_query: MapQuery) {
     info!("[Scene:SingleplayerLevel:setup]");
-    commands.spawn_bundle(OrthographicCameraBundle::new_2d());
+    commands
+        .spawn_bundle(OrthographicCameraBundle::new_2d())
+        .insert(MainCamera);
     let texture_handle = asset_server.load("images/images.png");
 
     let map_entity = commands.spawn().id();
@@ -187,7 +192,7 @@ fn set_player_pos(
 
 fn zoom_update(
     mut scroll: EventReader<MouseWheel>,
-    mut query: Query<&mut OrthographicProjection, With<Camera>>,
+    mut query: Query<&mut OrthographicProjection, With<MainCamera>>,
 ) {
     for mut projection in query.iter_mut() {
         for ev in scroll.iter() {
