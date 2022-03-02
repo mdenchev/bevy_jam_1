@@ -133,6 +133,7 @@ fn level_setup(
                 );
                 if layer_builder.get_tile(tile_pos).unwrap().tile.texture_index != 9 {
                     player_transform = Some(player_transform.unwrap_or(NewPos(x_px, y_px)));
+                    // TODO: replace with proper spawning logic
                     if rand::random::<f32>() < 0.01 {
                         crate::enemy::spawn_enemy(
                             &mut commands,

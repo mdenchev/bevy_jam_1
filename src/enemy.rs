@@ -10,7 +10,8 @@ impl Plugin for EnemyPlugin {
         app.add_system_set(
             SystemSet::on_update(crate::GameState::Playing)
                 .with_run_criteria(FixedTimestep::steps_per_second(60.0))
-                .with_system(enemy_follow_player),
+                .with_system(enemy_follow_player)
+                .with_system(despawn_enemy_on_collision),
         );
     }
 }
@@ -69,4 +70,19 @@ pub fn spawn_enemy(commands: &mut Commands, common_handles: &Res<CommonHandles>,
                 ]),
         )
         .insert(Velocity::default());
+}
+
+fn despawn_enemy_on_collision(mut commands: Commands, mut events: EventReader<CollisionEvent>) {
+    events.iter().filter(|e| e.is_started()).for_each(|ev| {
+        let (e1, e2) = ev.rigid_body_entities();
+        let (l1, l2) = ev.collision_layers();
+        use crate::GameLayers::*;
+        if l1.contains_group(Enemies) && l2.contains_group(Bullets) {
+            commands.entity(e1).despawn();
+            commands.entity(e2).despawn();
+        } else if l1.contains_group(Bullets) && l2.contains_group(Enemies) {
+            commands.entity(e1).despawn();
+            commands.entity(e2).despawn();
+        }
+    });
 }

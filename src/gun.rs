@@ -54,7 +54,7 @@ impl GunType {
 
     pub fn velocity(&self) -> f32 {
         match self {
-            GunType::Shotgun => 3000.0,
+            GunType::Shotgun => 1500.0,
         }
     }
 
