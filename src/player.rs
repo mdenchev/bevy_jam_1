@@ -7,7 +7,7 @@ use player_movement::player_movement;
 
 use crate::{
     gun::GunType,
-    item::{Inventory, Item},
+    item::{IgnoreColliders, Inventory, Item},
     levels::MainCamera,
     utils::CommonHandles,
     GameState,
@@ -46,11 +46,8 @@ fn spawn_player(
         .spawn_bundle(GunType::Shotgun.create_bundle(&*asset_server))
         .id();
 
-    // This bit is unergonomic, but this shouldn't matter later, when the player doesn't start with items
     let mut starting_inventory = Inventory::default();
-    starting_inventory.add_item(Item::Gun(GunType::Shotgun));
-    starting_inventory.add_item(Item::Grenade);
-    starting_inventory.add_item(Item::Totem);
+    starting_inventory.collect_item(Item::Gun(GunType::Shotgun));
 
     commands
         .spawn_bundle(ControllablePlayerBundle::default())
@@ -62,6 +59,7 @@ fn spawn_player(
         })
         .insert(ControlledPlayer)
         .insert(starting_inventory)
+        .insert(IgnoreColliders::default())
         .insert(RigidBody::Dynamic)
         .insert(RotationConstraints::lock())
         .insert(CollisionShape::Sphere { radius: 10.0 })
