@@ -21,8 +21,6 @@ pub struct PlayerInput {
     pub shoot: ButtonState,
     pub throw: ButtonState,
     pub dodge: ButtonState,
-    pub inventory_next: ButtonState,
-    pub inventory_prev: ButtonState,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -136,14 +134,4 @@ fn get_player_inputs(
     } else {
         player_input.throw.upgrade()
     };
-    if keys.pressed(KeyCode::Q) {
-        player_input.inventory_next.downgrade();
-    } else {
-        player_input.inventory_next.upgrade();
-    }
-    if keys.pressed(KeyCode::E) {
-        player_input.inventory_prev.downgrade();
-    } else {
-        player_input.inventory_prev.upgrade();
-    }
 }

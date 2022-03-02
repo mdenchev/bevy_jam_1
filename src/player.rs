@@ -7,7 +7,7 @@ use player_movement::player_movement;
 
 use crate::{
     gun::GunType,
-    item::{Inventory, Item},
+    item::{IgnoreColliders, Inventory, Item},
     levels::MainCamera,
     utils::CommonHandles,
     GameState,
@@ -59,6 +59,7 @@ fn spawn_player(
         })
         .insert(ControlledPlayer)
         .insert(starting_inventory)
+        .insert(IgnoreColliders::default())
         .insert(RigidBody::Dynamic)
         .insert(RotationConstraints::lock())
         .insert(CollisionShape::Sphere { radius: 10.0 })
