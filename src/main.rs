@@ -1,5 +1,6 @@
 #![feature(try_blocks)]
 #![feature(let_else)]
+#![allow(clippy::too_many_arguments)]
 
 use bevy::diagnostic::FrameTimeDiagnosticsPlugin;
 use bevy::prelude::*;
