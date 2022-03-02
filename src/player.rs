@@ -46,11 +46,8 @@ fn spawn_player(
         .spawn_bundle(GunType::Shotgun.create_bundle(&*asset_server))
         .id();
 
-    // This bit is unergonomic, but this shouldn't matter later, when the player doesn't start with items
     let mut starting_inventory = Inventory::default();
-    starting_inventory.add_item(Item::Gun(GunType::Shotgun));
-    starting_inventory.add_item(Item::Grenade);
-    starting_inventory.add_item(Item::Totem);
+    starting_inventory.collect_item(Item::Gun(GunType::Shotgun));
 
     commands
         .spawn_bundle(ControllablePlayerBundle::default())
