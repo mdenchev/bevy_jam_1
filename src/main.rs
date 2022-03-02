@@ -10,6 +10,7 @@ use bevy_kira_audio::AudioPlugin;
 use heron::prelude::*;
 use resources::audio_channels::AudioChannels;
 
+mod enemy;
 pub mod gun;
 mod inputs;
 mod item;
@@ -47,6 +48,7 @@ fn main() {
         .add_plugin(levels::SinglePlayerScene)
         .add_plugin(item::ItemPlugin)
         .add_plugin(gun::GunPlugin)
+        .add_plugin(enemy::EnemyPlugin)
         .add_state(GameState::MainMenu)
         .run();
 }

@@ -2,7 +2,7 @@ use bevy::{input::mouse::MouseWheel, prelude::*};
 use bevy_ecs_tilemap::prelude::*;
 use heron::{CollisionLayers, CollisionShape, RigidBody};
 
-use crate::{player::PlayerStats, GameState};
+use crate::{player::PlayerStats, utils::CommonHandles, GameState};
 
 #[derive(Copy, Clone, Debug)]
 pub struct NewPos(f32, f32);
@@ -25,12 +25,21 @@ impl Plugin for SinglePlayerScene {
 #[derive(Component)]
 pub struct MainCamera;
 
-fn level_setup(mut commands: Commands, asset_server: Res<AssetServer>, mut map_query: MapQuery) {
+fn level_setup(
+    mut commands: Commands,
+    common_handles: Res<CommonHandles>,
+    atlases: Res<Assets<TextureAtlas>>,
+    mut map_query: MapQuery,
+) {
     info!("[Scene:SingleplayerLevel:setup]");
     commands
         .spawn_bundle(OrthographicCameraBundle::new_2d())
         .insert(MainCamera);
-    let texture_handle = asset_server.load("images/images.png");
+    let texture_handle = atlases
+        .get(common_handles.player_sprites.clone())
+        .unwrap()
+        .texture
+        .clone();
 
     let map_entity = commands.spawn().id();
     let mut map = Map::new(0u16, map_entity);
@@ -124,6 +133,13 @@ fn level_setup(mut commands: Commands, asset_server: Res<AssetServer>, mut map_q
                 );
                 if layer_builder.get_tile(tile_pos).unwrap().tile.texture_index != 9 {
                     player_transform = Some(player_transform.unwrap_or(NewPos(x_px, y_px)));
+                    if rand::random::<f32>() < 0.01 {
+                        crate::enemy::spawn_enemy(
+                            &mut commands,
+                            &common_handles,
+                            Vec2::new(x_px, y_px),
+                        );
+                    }
                     continue;
                 }
                 let mut neighbors = 0;
