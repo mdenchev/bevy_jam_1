@@ -1,5 +1,5 @@
-use bevy::{core::FixedTimestep, prelude::*};
-use heron::prelude::*;
+use bevy::{core::FixedTimestep, prelude::*, utils::HashSet};
+use heron::{prelude::*, rapier_plugin::PhysicsWorld};
 
 use crate::{player::PlayerStats, utils::CommonHandles};
 
@@ -11,7 +11,8 @@ impl Plugin for EnemyPlugin {
             SystemSet::on_update(crate::GameState::Playing)
                 .with_run_criteria(FixedTimestep::steps_per_second(60.0))
                 .with_system(enemy_follow_player)
-                .with_system(despawn_enemy_on_collision),
+                .with_system(despawn_enemy_on_collision)
+                .with_system(check_enemy_visibility),
         );
     }
 }
@@ -67,6 +68,7 @@ pub fn spawn_enemy(commands: &mut Commands, common_handles: &Res<CommonHandles>,
                     crate::GameLayers::World,
                     crate::GameLayers::Player,
                     crate::GameLayers::Bullets,
+                    crate::GameLayers::Enemies,
                 ]),
         )
         .insert(Velocity::default());
@@ -85,4 +87,35 @@ fn despawn_enemy_on_collision(mut commands: Commands, mut events: EventReader<Co
             commands.entity(e2).despawn();
         }
     });
+}
+
+fn check_enemy_visibility(
+    players: Query<&Transform, With<PlayerStats>>,
+    mut enemies: Query<(Entity, &mut Visibility, &Transform, &EnemyStats)>,
+    physics_world: PhysicsWorld,
+) {
+    for player_trans in players.iter() {
+        let player_pos = player_trans.translation;
+        for (_ent, mut visibility, enemy_trans, _) in enemies.iter_mut() {
+            let enemy_pos = enemy_trans.translation;
+            if enemy_pos.distance(player_pos) > 1000.0f32 {
+                visibility.is_visible = false;
+                continue;
+            }
+            use crate::GameLayers::*;
+            let distance_to_wall = physics_world
+                .ray_cast_with_filter(
+                    player_pos,
+                    enemy_pos - player_pos,
+                    false,
+                    CollisionLayers::none()
+                        .with_group(Player)
+                        .with_masks(&[World]),
+                    |_| true,
+                )
+                .map(|r| r.collision_point.distance(player_pos))
+                .unwrap_or(f32::MAX);
+            visibility.is_visible = distance_to_wall > enemy_pos.distance(player_pos);
+        }
+    }
 }
