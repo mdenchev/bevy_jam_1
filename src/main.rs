@@ -2,7 +2,7 @@
 #![feature(let_else)]
 #![allow(clippy::too_many_arguments)]
 
-use bevy::diagnostic::FrameTimeDiagnosticsPlugin;
+use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::prelude::*;
 use bevy::window::WindowMode;
 use bevy_egui::EguiPlugin;
@@ -39,7 +39,7 @@ fn main() {
         .add_plugin(utils::UtilsPlugin)
         .add_plugin(PhysicsPlugin::default())
         .add_plugin(inputs::GameInputPlugin)
-        // .add_plugin(LogDiagnosticsPlugin::default())
+        .add_plugin(LogDiagnosticsPlugin::default())
         .add_plugin(FrameTimeDiagnosticsPlugin::default())
         .add_plugin(EguiPlugin)
         .add_plugin(AudioPlugin)
