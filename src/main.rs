@@ -13,6 +13,7 @@ use resources::audio_channels::AudioChannels;
 
 mod enemy;
 pub mod gun;
+mod history;
 mod inputs;
 mod item;
 mod levels;
@@ -50,6 +51,7 @@ fn main() {
         .add_plugin(item::ItemPlugin)
         .add_plugin(gun::GunPlugin)
         .add_plugin(enemy::EnemyPlugin)
+        .add_plugin(history::RewindPlugin)
         .add_state(GameState::MainMenu)
         .run();
 }
