@@ -1,7 +1,7 @@
 use bevy::{core::FixedTimestep, prelude::*};
 use heron::{prelude::*, rapier_plugin::PhysicsWorld};
 
-use crate::{player::PlayerStats, utils::CommonHandles};
+use crate::{levels::map::MapInitData, player::PlayerStats, utils::CommonHandles, GameState};
 
 pub struct EnemyPlugin;
 
@@ -12,8 +12,7 @@ impl Plugin for EnemyPlugin {
                 // This apparently removes the GameState condition
                 //.with_run_criteria(FixedTimestep::steps_per_second(60.0))
                 .with_system(enemy_follow_player)
-                .with_system(despawn_enemy_on_collision)
-                //.with_system(check_enemy_visibility),
+                .with_system(despawn_enemy_on_collision), //.with_system(check_enemy_visibility),
         );
     }
 }
@@ -75,7 +74,15 @@ pub fn spawn_enemy(commands: &mut Commands, common_handles: &CommonHandles, posi
         .insert(Velocity::default());
 }
 
-fn despawn_enemy_on_collision(mut commands: Commands, mut events: EventReader<CollisionEvent>) {
+fn despawn_enemy_on_collision(
+    mut commands: Commands,
+    time: Res<Time>,
+    mut map_init_data: ResMut<MapInitData>,
+    mut game_state: ResMut<State<GameState>>,
+    mut events: EventReader<CollisionEvent>,
+) {
+    // Fixme not at all the right place for this but that's life ya know?
+    map_init_data.timer += time.delta();
     events.iter().filter(|e| e.is_started()).for_each(|ev| {
         let (e1, e2) = ev.rigid_body_entities();
         let (l1, l2) = ev.collision_layers();
@@ -83,9 +90,14 @@ fn despawn_enemy_on_collision(mut commands: Commands, mut events: EventReader<Co
         if l1.contains_group(Enemies) && l2.contains_group(Bullets) {
             commands.entity(e1).despawn();
             commands.entity(e2).despawn();
+            map_init_data.kills += 1;
         } else if l1.contains_group(Bullets) && l2.contains_group(Enemies) {
             commands.entity(e1).despawn();
             commands.entity(e2).despawn();
+            map_init_data.kills += 1;
+        }
+        if map_init_data.kills == 50 {
+            let _ = game_state.overwrite_set(GameState::GameWon);
         }
     });
 }

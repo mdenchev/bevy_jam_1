@@ -60,7 +60,7 @@ pub enum GameState {
     BuildLevel,
     SetupLevel,
     Playing,
-    GameOver,
+    GameWon,
 }
 
 #[derive(Clone, Eq, PartialEq, Debug, Hash, PhysicsLayer)]
