@@ -42,10 +42,13 @@ pub fn replay_recordings(
         (Without<ControlledPlayer>, With<RigidBody>),
     >,
 ) {
+    let current_loop = player_recording.current_loop;
+    if current_loop == 0 {
+        return;
+    };
     let mut ticks_batch = vec![];
     let tick = player_recording.current_tick;
-    dbg!(clones.iter().count());
-    for (id, recording) in player_recording.inputs.iter().enumerate() {
+        for (id, recording) in player_recording.inputs[..current_loop].iter().enumerate() {
         for (entity, mut vel, stat, clone_id) in clones.iter_mut() {
             if clone_id.0 == id {
                 if let Some(input) = recording.get(tick) {
@@ -143,7 +146,7 @@ pub fn player_shooting(
                     gun_timer.tick(time.delta());
                     // Shoot
                     if input.shoot.is_down() && gun_timer.finished() {
-                        info!("Player shoots {gun_type:?}");
+                        info!("Player {player_ent:?} shoots {gun_type:?}");
                         gun_type.play_sfx(&*audio, &channels.audio, &*asset_server);
                         commands
                             .spawn_bundle(gun_type.create_bullet_bundle(

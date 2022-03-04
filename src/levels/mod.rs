@@ -232,7 +232,7 @@ pub fn level_spawns(
     );
 
     // Spawn clones
-    for (id, recording) in recordings.inputs.iter().enumerate() {
+    for id in 0..recordings.inputs.len() {
         crate::player::spawn_player(
             &mut commands,
             &common_handles,
