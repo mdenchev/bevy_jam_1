@@ -9,10 +9,11 @@ impl Plugin for EnemyPlugin {
     fn build(&self, app: &mut App) {
         app.add_system_set(
             SystemSet::on_update(crate::GameState::Playing)
-                .with_run_criteria(FixedTimestep::steps_per_second(60.0))
+                // This apparently removes the GameState condition
+                //.with_run_criteria(FixedTimestep::steps_per_second(60.0))
                 .with_system(enemy_follow_player)
                 .with_system(despawn_enemy_on_collision)
-                .with_system(check_enemy_visibility),
+                //.with_system(check_enemy_visibility),
         );
     }
 }

@@ -39,9 +39,10 @@ impl Plugin for PlayerPlugin {
                     .with_system(player_movement)
                     .with_system(player_shooting)
                     .with_system(replay_recordings)
-                    .with_run_criteria(
-                        FixedTimestep::steps_per_second(60.0),
-                    )
+                    // This apparently removes the GameState condition
+                    //.with_run_criteria(
+                    //    FixedTimestep::steps_per_second(60.0),
+                    //)
             );
     }
 }
@@ -124,7 +125,7 @@ pub struct ControlledPlayer;
 fn cam_follow_player(
     mut queries: QuerySet<(
         QueryState<&mut Transform, With<MainCamera>>,
-        QueryState<&Transform, (With<ControllablePlayer>, With<RigidBody>)>,
+        QueryState<&Transform, (With<ControlledPlayer>, With<RigidBody>)>,
     )>,
 ) {
     let mut player_position = if let Ok(player) = queries.q1().get_single() {

@@ -54,17 +54,19 @@ pub fn replay_recordings(
 }
 
 pub fn player_clone(
-    keys: Res<Input<KeyCode>>,
+    mut keys: ResMut<Input<KeyCode>>,
     mut game_state: ResMut<State<GameState>>,
     mut player_recording: ResMut<PlayerRecording>,
 ) {
+    dbg!("here");
     // Clone
     if keys.just_pressed(KeyCode::C) {
         info!("Cloning!");
         player_recording.current_loop += 1;
         player_recording.current_tick = 0;
         player_recording.inputs.push(vec![]);
-        let _ = game_state.set(GameState::SetupLevel);
+        let _ = game_state.overwrite_set(GameState::SetupLevel);
+        keys.clear_just_pressed(KeyCode::C);
     }
 
 }
