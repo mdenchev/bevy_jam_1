@@ -29,7 +29,7 @@ fn main() {
             height: 900.0,
             vsync: true,
             mode: WindowMode::Windowed,
-            title: "Awesome Bevy Game".to_string(),
+            title: "Bevy Cursed Tomb".to_string(),
             ..Default::default()
         })
         .insert_resource(ClearColor(Color::rgb(0.11, 0.039, 0.004)))
