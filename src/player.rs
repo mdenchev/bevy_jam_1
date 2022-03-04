@@ -16,7 +16,7 @@ use crate::{
 };
 
 use self::player_movement::{
-    player_shooting, record_player, replay_recordings, ControllablePlayer, player_clone,
+    player_shooting, record_player, replay_recordings, ControllablePlayer, player_clone, PlayerInputTick, player_shooting_input,
 };
 
 #[derive(Default)]
@@ -31,14 +31,16 @@ pub struct PlayerPlugin;
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<PlayerRecording>()
+            .add_event::<PlayerInputTick>()
             .add_system_set(
                 SystemSet::on_update(GameState::Playing)
                     .with_system(cam_follow_player)
                     .with_system(record_player)
                     .with_system(player_clone)
                     .with_system(player_movement)
-                    .with_system(player_shooting)
                     .with_system(replay_recordings)
+                    .with_system(player_shooting_input)
+                    .with_system(player_shooting)
                     // This apparently removes the GameState condition
                     //.with_run_criteria(
                     //    FixedTimestep::steps_per_second(60.0),
