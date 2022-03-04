@@ -1,4 +1,4 @@
-use bevy::{core::FixedTimestep, prelude::*};
+use bevy::prelude::*;
 use heron::{prelude::*, rapier_plugin::PhysicsWorld};
 
 use crate::{levels::map::MapInitData, player::PlayerStats, utils::CommonHandles, GameState};
@@ -102,7 +102,7 @@ fn despawn_enemy_on_collision(
     });
 }
 
-fn check_enemy_visibility(
+fn _check_enemy_visibility(
     players: Query<&Transform, With<PlayerStats>>,
     mut enemies: Query<(Entity, &mut Visibility, &Transform, &EnemyStats)>,
     physics_world: PhysicsWorld,

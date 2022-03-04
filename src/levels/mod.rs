@@ -337,7 +337,7 @@ pub fn level_spawns(
 pub fn game_won(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
-    mut map_init_data: ResMut<MapInitData>,
+    map_init_data: ResMut<MapInitData>,
     query: Query<Entity>,
 ) {
     info!("Game Won!");
