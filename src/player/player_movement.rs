@@ -131,10 +131,8 @@ pub fn player_shooting(
         Without<ControllablePlayer>,
     >,
 ) {
-    dbg!("shooting");
     for PlayerInputTick { input, entity } in input_ticks.iter() {
         let entity = *entity;
-        dbg!(entity);
         let Ok((player_ent, &player_transform, inventory)) = players.get(entity) else {return};
         for (parent, mut gun_transform, mut visibility, mut gun_timer, gun_type) in guns.iter_mut()
         {
