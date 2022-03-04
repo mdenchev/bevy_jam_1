@@ -4,7 +4,7 @@ use bevy::{input::mouse::MouseWheel, prelude::*};
 use bevy_ecs_tilemap::prelude::*;
 use heron::{CollisionLayers, CollisionShape, RigidBody, Velocity};
 
-use crate::{utils::CommonHandles, GameState};
+use crate::{utils::CommonHandles, GameState, player::PlayerRecording};
 
 use self::map::MapInitData;
 
@@ -211,9 +211,11 @@ pub fn level_spawns(
     common_handles: Res<CommonHandles>,
     mut game_state: ResMut<State<GameState>>,
     map_init_data: Res<MapInitData>,
+    recordings: Res<PlayerRecording>,
     asset_server: Res<AssetServer>,
     char_query: Query<Entity, (With<Velocity>, With<RigidBody>)>,
 ) {
+    info!("Setting up level ents");
     // Clear existing enemies
     for ent in char_query.iter() {
         commands.entity(ent).despawn_recursive();
@@ -225,7 +227,21 @@ pub fn level_spawns(
         &common_handles,
         map_init_data.player_spawn_position,
         &asset_server,
+        false,
+        10000 // doesn't matter
     );
+
+    // Spawn clones
+    for (id, recording) in recordings.inputs.iter().enumerate() {
+        crate::player::spawn_player(
+            &mut commands,
+            &common_handles,
+            map_init_data.player_spawn_position,
+            &asset_server,
+            true,
+            id
+        );
+    }
 
     // Spawn enemies
     for (x_px, y_px) in map_init_data.enemy_spawn_positions.iter().cloned() {
