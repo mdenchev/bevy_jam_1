@@ -1,6 +1,6 @@
 use bevy::{core::FixedTimestep, prelude::*};
 
-use crate::{GameState, player::PlayerRecording};
+use crate::{player::PlayerRecording, GameState};
 
 pub struct GameInputPlugin;
 

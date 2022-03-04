@@ -16,7 +16,8 @@ use crate::{
 };
 
 use self::player_movement::{
-    player_shooting, record_player, replay_recordings, ControllablePlayer, player_clone, PlayerInputTick, player_shooting_input,
+    player_clone, player_shooting, player_shooting_input, record_player, replay_recordings,
+    ControllablePlayer, PlayerInputTick,
 };
 
 #[derive(Default)]
@@ -40,11 +41,10 @@ impl Plugin for PlayerPlugin {
                     .with_system(player_movement)
                     .with_system(replay_recordings)
                     .with_system(player_shooting_input)
-                    .with_system(player_shooting)
-                    // This apparently removes the GameState condition
-                    //.with_run_criteria(
-                    //    FixedTimestep::steps_per_second(60.0),
-                    //)
+                    .with_system(player_shooting), // This apparently removes the GameState condition
+                                                   //.with_run_criteria(
+                                                   //    FixedTimestep::steps_per_second(60.0),
+                                                   //)
             );
     }
 }

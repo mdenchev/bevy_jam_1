@@ -4,11 +4,7 @@ use bevy::{input::mouse::MouseWheel, prelude::*};
 use bevy_ecs_tilemap::prelude::*;
 use heron::{CollisionLayers, CollisionShape, RigidBody, Velocity};
 
-use crate::{
-    player::PlayerRecording,
-    utils::CommonHandles,
-    GameState,
-};
+use crate::{player::PlayerRecording, utils::CommonHandles, GameState};
 
 use self::map::MapInitData;
 
@@ -368,7 +364,6 @@ pub fn game_won(
         vertical: VerticalAlign::Center,
     };
 
-
     let root_ui_ent = commands
         .spawn_bundle(NodeBundle {
             style: Style {
@@ -385,7 +380,10 @@ pub fn game_won(
         .spawn_bundle(TextBundle {
             style: text_style.clone(),
             text: Text::with_section(
-                format!("You did it! In only {} seconds!", map_init_data.timer.as_secs()),
+                format!(
+                    "You did it! In only {} seconds!",
+                    map_init_data.timer.as_secs()
+                ),
                 text_textstyle.clone(),
                 text_text_alignment,
             ),

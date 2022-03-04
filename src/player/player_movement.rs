@@ -48,7 +48,7 @@ pub fn replay_recordings(
     };
     let mut ticks_batch = vec![];
     let tick = player_recording.current_tick;
-        for (id, recording) in player_recording.inputs[..current_loop].iter().enumerate() {
+    for (id, recording) in player_recording.inputs[..current_loop].iter().enumerate() {
         for (entity, mut vel, stat, clone_id) in clones.iter_mut() {
             if clone_id.0 == id {
                 if let Some(input) = recording.get(tick) {
