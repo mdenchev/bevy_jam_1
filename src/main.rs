@@ -43,7 +43,7 @@ fn main() {
         .add_plugin(FrameTimeDiagnosticsPlugin::default())
         .add_plugin(EguiPlugin)
         .add_plugin(AudioPlugin)
-        .add_plugin(WorldInspectorPlugin::new())
+        //.add_plugin(WorldInspectorPlugin::new())
         .add_plugin(player::PlayerPlugin)
         .add_plugin(menus::MainMenuScene)
         .add_plugin(levels::SinglePlayerScene)
@@ -57,8 +57,10 @@ fn main() {
 #[derive(Clone, Eq, PartialEq, Debug, Hash)]
 pub enum GameState {
     MainMenu,
+    BuildLevel,
+    SetupLevel,
     Playing,
-    GameOver,
+    GameWon,
 }
 
 #[derive(Clone, Eq, PartialEq, Debug, Hash, PhysicsLayer)]

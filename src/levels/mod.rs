@@ -1,33 +1,43 @@
+pub mod map;
+
 use bevy::{input::mouse::MouseWheel, prelude::*};
 use bevy_ecs_tilemap::prelude::*;
-use heron::{CollisionLayers, CollisionShape, RigidBody};
+use heron::{CollisionLayers, CollisionShape, RigidBody, Velocity};
 
-use crate::{player::PlayerStats, utils::CommonHandles, GameState};
+use crate::{player::PlayerRecording, utils::CommonHandles, GameState};
 
-#[derive(Copy, Clone, Debug)]
-pub struct NewPos(f32, f32);
+use self::map::MapInitData;
 
 pub struct SinglePlayerScene;
 
 impl Plugin for SinglePlayerScene {
     fn build(&self, app: &mut App) {
         app.add_plugin(TilemapPlugin)
+            .init_resource::<MapInitData>()
             .add_system(crate::utils::set_texture_filters_to_nearest)
-            .add_system_set(SystemSet::on_enter(GameState::Playing).with_system(level_setup))
+            .add_system_set(SystemSet::on_enter(GameState::BuildLevel).with_system(build_level))
+            .add_system_set(SystemSet::on_enter(GameState::SetupLevel).with_system(level_spawns))
             .add_system_set(
                 SystemSet::on_update(GameState::Playing)
                     .with_system(zoom_update)
-                    .with_system(set_player_pos),
-            );
+                    .with_system(update_kills_text),
+            )
+            .add_system_set(SystemSet::on_enter(GameState::GameWon).with_system(game_won));
     }
 }
 
 #[derive(Component)]
 pub struct MainCamera;
 
-fn level_setup(
+#[derive(Component)]
+pub struct KilledText;
+
+fn build_level(
     mut commands: Commands,
     common_handles: Res<CommonHandles>,
+    mut game_state: ResMut<State<GameState>>,
+    mut map_init_data: ResMut<MapInitData>,
+    asset_server: Res<AssetServer>,
     atlases: Res<Assets<TextureAtlas>>,
     mut map_query: MapQuery,
 ) {
@@ -121,8 +131,6 @@ fn level_setup(
             }
         }
 
-        let mut player_transform: Option<NewPos> = None;
-
         // Get rid of hanging pockets, add the
         for y in 0..size_y {
             for x in 0..size_x {
@@ -132,14 +140,9 @@ fn level_setup(
                     tile_pos.1 as f32 * 32.0 + 16.0,
                 );
                 if layer_builder.get_tile(tile_pos).unwrap().tile.texture_index != 9 {
-                    player_transform = Some(player_transform.unwrap_or(NewPos(x_px, y_px)));
-                    // TODO: replace with proper spawning logic
+                    map_init_data.player_spawn_position = (x_px, y_px);
                     if rand::random::<f32>() < 0.1 {
-                        crate::enemy::spawn_enemy(
-                            &mut commands,
-                            &common_handles,
-                            Vec2::new(x_px, y_px),
-                        );
+                        map_init_data.enemy_spawn_positions.push((x_px, y_px));
                     }
                     continue;
                 }
@@ -186,9 +189,6 @@ fn level_setup(
                 }
             }
         }
-
-        println!("{player_transform:?}");
-        commands.insert_resource(player_transform.unwrap());
     }
 
     let layer_entity = map_query.build_layer(&mut commands, layer_builder, texture_handle);
@@ -200,20 +200,71 @@ fn level_setup(
         .insert(map)
         .insert(Transform::from_xyz(0.0, 0.0, 0.0))
         .insert(GlobalTransform::default());
-}
 
-fn set_player_pos(
-    mut query: Query<&mut Transform, With<PlayerStats>>,
-    pos: Option<Res<NewPos>>,
-    mut commands: Commands,
-) {
-    for mut t in query.iter_mut() {
-        if let Some(ref p) = pos {
-            println!("{p:?}");
-            *t = Transform::from_xyz(p.0, p.1, 10.0);
-            commands.remove_resource::<NewPos>();
-        }
-    }
+    // Fixme bad place for this but no time to be clean
+    // Ui stuff
+    let text_style = Style {
+        align_self: AlignSelf::Center,
+        position_type: PositionType::Relative,
+        position: Rect::default(),
+        ..Default::default()
+    };
+
+    let text_textstyle = TextStyle {
+        font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+        font_size: 30.0,
+        color: Color::BLACK,
+    };
+
+    let text_text_alignment = TextAlignment {
+        horizontal: HorizontalAlign::Center,
+        vertical: VerticalAlign::Center,
+    };
+
+    let root_ui_ent = commands
+        .spawn_bundle(NodeBundle {
+            style: Style {
+                position_type: PositionType::Absolute,
+                position: Rect {
+                    left: Val::Px(40.),
+                    top: Val::Px(50.),
+                    ..Default::default()
+                },
+                flex_direction: FlexDirection::ColumnReverse,
+                ..Default::default()
+            },
+            ..Default::default()
+        })
+        .id();
+
+    let goal_ent = commands
+        .spawn_bundle(TextBundle {
+            style: text_style.clone(),
+            text: Text::with_section(
+                "Kill 50 enemies as fast as possible!",
+                text_textstyle.clone(),
+                text_text_alignment,
+            ),
+            ..Default::default()
+        })
+        .id();
+    let kills_ent = commands
+        .spawn_bundle(TextBundle {
+            style: text_style.clone(),
+            text: Text::with_section(
+                format!("Kills: {}", map_init_data.kills),
+                text_textstyle.clone(),
+                text_text_alignment,
+            ),
+            ..Default::default()
+        })
+        .insert(KilledText)
+        .id();
+    commands
+        .entity(root_ui_ent)
+        .push_children(&[goal_ent, kills_ent]);
+
+    let _ = game_state.overwrite_set(GameState::SetupLevel);
 }
 
 fn zoom_update(
@@ -225,4 +276,119 @@ fn zoom_update(
             projection.scale = (projection.scale - ev.y / 20.0).max(0.01);
         }
     }
+}
+
+pub fn update_kills_text(
+    map_init_data: Res<MapInitData>,
+    mut query: Query<&mut Text, With<KilledText>>,
+) {
+    let mut text = query.single_mut();
+    text.sections[0].value = format!("Kills: {}", map_init_data.kills);
+}
+
+pub fn level_spawns(
+    mut commands: Commands,
+    common_handles: Res<CommonHandles>,
+    mut game_state: ResMut<State<GameState>>,
+    mut map_init_data: ResMut<MapInitData>,
+    recordings: Res<PlayerRecording>,
+    asset_server: Res<AssetServer>,
+    char_query: Query<Entity, (With<Velocity>, With<RigidBody>)>,
+) {
+    info!("Setting up level ents");
+    // Reset kills
+    map_init_data.kills = 0;
+
+    // Clear existing enemies
+    for ent in char_query.iter() {
+        commands.entity(ent).despawn_recursive();
+    }
+
+    // Spawn player
+    crate::player::spawn_player(
+        &mut commands,
+        &common_handles,
+        map_init_data.player_spawn_position,
+        &asset_server,
+        false,
+        10000, // doesn't matter
+    );
+
+    // Spawn clones
+    for id in 0..recordings.inputs.len() {
+        crate::player::spawn_player(
+            &mut commands,
+            &common_handles,
+            map_init_data.player_spawn_position,
+            &asset_server,
+            true,
+            id,
+        );
+    }
+
+    // Spawn enemies
+    for (x_px, y_px) in map_init_data.enemy_spawn_positions.iter().cloned() {
+        crate::enemy::spawn_enemy(&mut commands, &common_handles, Vec2::new(x_px, y_px));
+    }
+
+    let _ = game_state.overwrite_set(GameState::Playing);
+}
+
+pub fn game_won(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    mut map_init_data: ResMut<MapInitData>,
+    query: Query<Entity>,
+) {
+    info!("Game Won!");
+    for ent in query.iter() {
+        commands.entity(ent).despawn_recursive();
+    }
+
+    commands.spawn_bundle(UiCameraBundle::default());
+    let text_style = Style {
+        align_self: AlignSelf::Center,
+        position_type: PositionType::Relative,
+        position: Rect::default(),
+        ..Default::default()
+    };
+
+    let text_textstyle = TextStyle {
+        font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+        font_size: 30.0,
+        color: Color::BLACK,
+    };
+
+    let text_text_alignment = TextAlignment {
+        horizontal: HorizontalAlign::Center,
+        vertical: VerticalAlign::Center,
+    };
+
+    let root_ui_ent = commands
+        .spawn_bundle(NodeBundle {
+            style: Style {
+                size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
+                justify_content: JustifyContent::Center,
+                flex_direction: FlexDirection::ColumnReverse,
+                ..Default::default()
+            },
+            ..Default::default()
+        })
+        .id();
+
+    let win_ent = commands
+        .spawn_bundle(TextBundle {
+            style: text_style.clone(),
+            text: Text::with_section(
+                format!(
+                    "You did it! In only {} seconds!",
+                    map_init_data.timer.as_secs()
+                ),
+                text_textstyle.clone(),
+                text_text_alignment,
+            ),
+            ..Default::default()
+        })
+        .id();
+    commands.entity(root_ui_ent).push_children(&[win_ent]);
 }

@@ -7,41 +7,62 @@ use player_movement::player_movement;
 
 use crate::{
     gun::GunType,
+    inputs::PlayerInput,
     item::{IgnoreColliders, Inventory, Item},
     levels::MainCamera,
+    player::player_movement::CloneId,
     utils::CommonHandles,
     GameState,
 };
 
-use self::player_movement::{player_shooting, ControllablePlayer};
+use self::player_movement::{
+    player_clone, player_shooting, player_shooting_input, record_player, replay_recordings,
+    ControllablePlayer, PlayerInputTick,
+};
+
+#[derive(Default)]
+pub struct PlayerRecording {
+    pub current_loop: usize,
+    pub current_tick: usize,
+    pub inputs: Vec<Vec<PlayerInput>>,
+}
 
 pub struct PlayerPlugin;
 
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system_set(
-            //PlayerStage,
-            SystemSet::on_enter(GameState::Playing).with_system(spawn_player),
-        )
-        .add_system(
-            //PlayerStage,
-            player_movement.with_run_criteria(FixedTimestep::steps_per_second(60.0)),
-        )
-        .add_system(
-            //PlayerStage,
-            player_shooting.with_run_criteria(FixedTimestep::steps_per_second(60.0)),
-        )
-        .add_system_set(SystemSet::on_update(GameState::Playing).with_system(cam_follow_player));
+        app.init_resource::<PlayerRecording>()
+            .add_event::<PlayerInputTick>()
+            .add_system_set(
+                SystemSet::on_update(GameState::Playing)
+                    .with_system(cam_follow_player)
+                    .with_system(record_player)
+                    .with_system(player_clone)
+                    .with_system(player_movement)
+                    .with_system(replay_recordings)
+                    .with_system(player_shooting_input)
+                    .with_system(player_shooting), // This apparently removes the GameState condition
+                                                   //.with_run_criteria(
+                                                   //    FixedTimestep::steps_per_second(60.0),
+                                                   //)
+            );
     }
 }
 
 // Going to want this to find the spawn point eventually.
-fn spawn_player(
-    mut commands: Commands,
-    common_handles: Res<CommonHandles>,
-    asset_server: Res<AssetServer>,
+pub fn spawn_player(
+    commands: &mut Commands,
+    common_handles: &CommonHandles,
+    pos: (f32, f32),
+    asset_server: &AssetServer,
+    is_clone: bool,
+    clone_id: usize,
 ) {
-    info!("Spawning player!");
+    if is_clone {
+        info!("Spawning clone#{clone_id}");
+    } else {
+        info!("Spawning player!");
+    }
     let starting_gun = commands
         .spawn_bundle(GunType::Shotgun.create_bundle(&*asset_server))
         .id();
@@ -49,15 +70,14 @@ fn spawn_player(
     let mut starting_inventory = Inventory::default();
     starting_inventory.collect_item(Item::Gun(GunType::Shotgun));
 
-    commands
+    let player_ent = commands
         .spawn_bundle(ControllablePlayerBundle::default())
         .insert_bundle(SpriteSheetBundle {
             sprite: TextureAtlasSprite::new(32),
             texture_atlas: common_handles.player_sprites.clone(),
-            transform: Transform::from_xyz(0.0, 0.0, 1.0),
+            transform: Transform::from_xyz(pos.0, pos.1, 1.0),
             ..Default::default()
         })
-        .insert(ControlledPlayer)
         .insert(starting_inventory)
         .insert(IgnoreColliders::default())
         .insert(RigidBody::Dynamic)
@@ -73,7 +93,13 @@ fn spawn_player(
                     crate::GameLayers::Pickups,
                 ]),
         )
-        .add_child(starting_gun);
+        .add_child(starting_gun)
+        .id();
+    if is_clone {
+        commands.entity(player_ent).insert(CloneId(clone_id));
+    } else {
+        commands.entity(player_ent).insert(ControlledPlayer);
+    }
 }
 
 #[derive(Bundle, Default)]
@@ -101,7 +127,7 @@ pub struct ControlledPlayer;
 fn cam_follow_player(
     mut queries: QuerySet<(
         QueryState<&mut Transform, With<MainCamera>>,
-        QueryState<&Transform, (With<ControllablePlayer>, With<RigidBody>)>,
+        QueryState<&Transform, (With<ControlledPlayer>, With<RigidBody>)>,
     )>,
 ) {
     let mut player_position = if let Ok(player) = queries.q1().get_single() {

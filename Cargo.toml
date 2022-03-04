@@ -30,7 +30,7 @@ bevy = { version = "0.6", features = [
     "x11",
     "filesystem_watcher"
 ] }
-bevy_ecs_tilemap = "0.5"
+bevy_ecs_tilemap = { version = "0.5" }
 bevy_egui = "0.11"
 anyhow = "1.0"
 bevy_kira_audio = { version = "0.8", features = ["wav"] }
