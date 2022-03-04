@@ -1,4 +1,4 @@
-use bevy::{core::FixedTimestep, prelude::*, utils::HashSet};
+use bevy::{core::FixedTimestep, prelude::*};
 use heron::{prelude::*, rapier_plugin::PhysicsWorld};
 
 use crate::{player::PlayerStats, utils::CommonHandles};
@@ -45,7 +45,7 @@ pub fn enemy_follow_player(
     }
 }
 
-pub fn spawn_enemy(commands: &mut Commands, common_handles: &Res<CommonHandles>, position: Vec2) {
+pub fn spawn_enemy(commands: &mut Commands, common_handles: &CommonHandles, position: Vec2) {
     commands
         .spawn()
         .insert_bundle(SpriteSheetBundle {

@@ -1,33 +1,34 @@
+mod map;
+
 use bevy::{input::mouse::MouseWheel, prelude::*};
 use bevy_ecs_tilemap::prelude::*;
-use heron::{CollisionLayers, CollisionShape, RigidBody};
+use heron::{CollisionLayers, CollisionShape, RigidBody, Velocity};
 
-use crate::{player::PlayerStats, utils::CommonHandles, GameState};
+use crate::{utils::CommonHandles, GameState};
 
-#[derive(Copy, Clone, Debug)]
-pub struct NewPos(f32, f32);
+use self::map::MapInitData;
 
 pub struct SinglePlayerScene;
 
 impl Plugin for SinglePlayerScene {
     fn build(&self, app: &mut App) {
         app.add_plugin(TilemapPlugin)
+            .init_resource::<MapInitData>()
             .add_system(crate::utils::set_texture_filters_to_nearest)
-            .add_system_set(SystemSet::on_enter(GameState::Playing).with_system(level_setup))
-            .add_system_set(
-                SystemSet::on_update(GameState::Playing)
-                    .with_system(zoom_update)
-                    .with_system(set_player_pos),
-            );
+            .add_system_set(SystemSet::on_enter(GameState::BuildLevel).with_system(build_level))
+            .add_system_set(SystemSet::on_enter(GameState::SetupLevel).with_system(level_spawns))
+            .add_system_set(SystemSet::on_update(GameState::Playing).with_system(zoom_update));
     }
 }
 
 #[derive(Component)]
 pub struct MainCamera;
 
-fn level_setup(
+fn build_level(
     mut commands: Commands,
     common_handles: Res<CommonHandles>,
+    mut game_state: ResMut<State<GameState>>,
+    mut map_init_data: ResMut<MapInitData>,
     atlases: Res<Assets<TextureAtlas>>,
     mut map_query: MapQuery,
 ) {
@@ -121,8 +122,6 @@ fn level_setup(
             }
         }
 
-        let mut player_transform: Option<NewPos> = None;
-
         // Get rid of hanging pockets, add the
         for y in 0..size_y {
             for x in 0..size_x {
@@ -132,14 +131,9 @@ fn level_setup(
                     tile_pos.1 as f32 * 32.0 + 16.0,
                 );
                 if layer_builder.get_tile(tile_pos).unwrap().tile.texture_index != 9 {
-                    player_transform = Some(player_transform.unwrap_or(NewPos(x_px, y_px)));
-                    // TODO: replace with proper spawning logic
+                    map_init_data.player_spawn_position = (x_px, y_px);
                     if rand::random::<f32>() < 0.1 {
-                        crate::enemy::spawn_enemy(
-                            &mut commands,
-                            &common_handles,
-                            Vec2::new(x_px, y_px),
-                        );
+                        map_init_data.enemy_spawn_positions.push((x_px, y_px));
                     }
                     continue;
                 }
@@ -186,9 +180,6 @@ fn level_setup(
                 }
             }
         }
-
-        println!("{player_transform:?}");
-        commands.insert_resource(player_transform.unwrap());
     }
 
     let layer_entity = map_query.build_layer(&mut commands, layer_builder, texture_handle);
@@ -200,20 +191,8 @@ fn level_setup(
         .insert(map)
         .insert(Transform::from_xyz(0.0, 0.0, 0.0))
         .insert(GlobalTransform::default());
-}
 
-fn set_player_pos(
-    mut query: Query<&mut Transform, With<PlayerStats>>,
-    pos: Option<Res<NewPos>>,
-    mut commands: Commands,
-) {
-    for mut t in query.iter_mut() {
-        if let Some(ref p) = pos {
-            println!("{p:?}");
-            *t = Transform::from_xyz(p.0, p.1, 10.0);
-            commands.remove_resource::<NewPos>();
-        }
-    }
+    let _ = game_state.overwrite_set(GameState::SetupLevel);
 }
 
 fn zoom_update(
@@ -225,4 +204,33 @@ fn zoom_update(
             projection.scale = (projection.scale - ev.y / 20.0).max(0.01);
         }
     }
+}
+
+pub fn level_spawns(
+    mut commands: Commands,
+    common_handles: Res<CommonHandles>,
+    mut game_state: ResMut<State<GameState>>,
+    map_init_data: Res<MapInitData>,
+    asset_server: Res<AssetServer>,
+    char_query: Query<Entity, (With<Velocity>, With<RigidBody>)>,
+) {
+    // Clear existing enemies
+    for ent in char_query.iter() {
+        commands.entity(ent).despawn_recursive();
+    }
+
+    // Spawn player
+    crate::player::spawn_player(
+        &mut commands,
+        &common_handles,
+        map_init_data.player_spawn_position,
+        &asset_server,
+    );
+
+    // Spawn enemies
+    for (x_px, y_px) in map_init_data.enemy_spawn_positions.iter().cloned() {
+        crate::enemy::spawn_enemy(&mut commands, &common_handles, Vec2::new(x_px, y_px));
+    }
+
+    let _ = game_state.overwrite_set(GameState::Playing);
 }

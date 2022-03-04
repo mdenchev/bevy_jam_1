@@ -31,7 +31,7 @@ impl Plugin for ItemPlugin {
 pub enum Item {
     Gun(GunType),
     Grenade,
-    Totem,
+    _Totem,
 }
 
 impl Item {
@@ -41,7 +41,7 @@ impl Item {
                 GunType::Shotgun => "images/shotgun.png",
             },
             Item::Grenade => "images/grenade.png",
-            Item::Totem => "images/totem.png",
+            Item::_Totem => "images/totem.png",
         }
     }
 

@@ -37,7 +37,7 @@ pub fn handle_buttons(
                 *color = PRESSED_COLOR;
                 match button_id {
                     ButtonId::SinglePlayer => {
-                        game_state.overwrite_set(GameState::Playing)?;
+                        game_state.overwrite_set(GameState::BuildLevel)?;
                     }
                     ButtonId::Quit => {
                         app_exit_events.send(AppExit);
