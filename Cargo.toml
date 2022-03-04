@@ -1,5 +1,5 @@
 [package]
-name = "Bevy Cursed Tomb"
+name = "bevy_cursed_tomb"
 description = "A game written in Bevy for Bevy Jam 1"
 version = "0.0.0"
 authors = ["SirCarter", "Supermath101", "tas", "Seldom", "mdenchev"]
