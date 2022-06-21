@@ -37,3 +37,4 @@ bevy_kira_audio = { version = "0.8", features = ["wav"] }
 heron = { version = "2.0.1", features = ["2d", "enhanced-determinism"] }
 bevy-inspector-egui = "0.8"
 rand = "0.8"
+derive_more = "0.99"
